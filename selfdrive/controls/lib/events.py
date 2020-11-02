@@ -532,8 +532,8 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   },
   EventName.needBrake: {
     ET.WARNING: Alert(
-      "브레이크",
-      "",
+      "브레이크!",
+      "추돌위험",
       AlertStatus.normal, AlertSize.full,
       Priority.LOW, VisualAlert.none, AudibleAlert.chimeWarning2Repeat, .1, .1, .1),
   },

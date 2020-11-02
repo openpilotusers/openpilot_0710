@@ -233,7 +233,7 @@ class CarController():
     self.apply_accel_last = apply_accel
     self.apply_steer_last = apply_steer
 
-    if CS.acc_active and CS.lead_distance > 149 and self.dRel < 45 and self.vRel < -5 and CS.out.vEgo > 7:
+    if CS.acc_active and CS.lead_distance > 149 and self.dRel < 55 and self.vRel < -5 and CS.out.vEgo > 7:
       self.need_brake_timer += 1
       if self.need_brake_timer > 50:
         self.need_brake = True
