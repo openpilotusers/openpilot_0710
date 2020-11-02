@@ -715,17 +715,17 @@ void TIM1_BRK_TIM9_IRQ_Handler(void) {
       #ifdef EON
       // check heartbeat counter if we are running EON code.
       // if the heartbeat has been gone for a while, go to SILENT safety mode and enter power save
+      // MDPS will hard fault if SAFETY_SILENT set or panda slept
       if (heartbeat_counter >= (check_started() ? EON_HEARTBEAT_IGNITION_CNT_ON : EON_HEARTBEAT_IGNITION_CNT_OFF)) {
         puts("EON hasn't sent a heartbeat for 0x");
         puth(heartbeat_counter);
-        puts(" seconds. Safety is set to SILENT mode.\n");
-      if (current_safety_mode != SAFETY_ALLOUTPUT) {
-        set_safety_mode(SAFETY_ALLOUTPUT, 0U); // MDPS will hard if SAFETY_NOOUTPUT
-      }
-	 // MDPS will if panda sleep
-     // if (power_save_status != POWER_SAVE_STATUS_ENABLED) {
-     //   set_power_save_state(POWER_SAVE_STATUS_ENABLED);
-     // }
+        puts(" seconds. Safety is set to NOOUTPUT mode.\n");
+        if (current_safety_mode != SAFETY_NOOUTPUT) {
+          set_safety_mode(SAFETY_NOOUTPUT, 0U);
+        }
+        // if (power_save_status != POWER_SAVE_STATUS_ENABLED) {
+        //   set_power_save_state(POWER_SAVE_STATUS_ENABLED);
+        // }
 
         // Also disable IR when the heartbeat goes missing
         current_board->set_ir_power(0U);
@@ -835,7 +835,7 @@ int main(void) {
   // use TIM2->CNT to read
 
   // init to SILENT and can silent
-  set_safety_mode(SAFETY_ALLOUTPUT, 0); // MDPS will hard if SAFETY_NOOUTPUT
+  set_safety_mode(SAFETY_NOOUTPUT, 0); // MDPS will hard fault if SAFETY_SILENT set
 
   // enable CAN TXs
   current_board->enable_can_transceivers(true);
