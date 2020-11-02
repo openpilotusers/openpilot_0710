@@ -15,6 +15,7 @@ const CanMsg HYUNDAI_TX_MSGS[] = {
   //{1290, 0, 8}, //   SCC13,  Bus 0
   //{905, 0, 8},  //   SCC14,  Bus 0
   //{1186, 0, 8},  //   4a2SCC, Bus 0
+  {1427, 0, 6},   // TPMS, Bus 0
  };
 
 // TODO: missing checksum for wheel speeds message,worst failure case is
