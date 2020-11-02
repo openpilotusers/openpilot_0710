@@ -28,6 +28,9 @@ class Spdctrl(SpdController):
         if dRele < 150:
             dRel = dRele # dRele(이온 차간간격)값 사용
             vRel = vRele
+        elif CS.lead_distance < 150:
+            dRel = CS.lead_distance # CS.lead_distance(레이더 차간간격)값 사용
+            vRel = CS.lead_objspd
 
         dst_lead_distance = (CS.clu_Vanz*self.cv_Raio)   # 기준 유지 거리
         
