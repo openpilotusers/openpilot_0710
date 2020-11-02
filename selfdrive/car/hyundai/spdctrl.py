@@ -54,20 +54,20 @@ class Spdctrl(SpdController):
         # 거리 유지 조건
         elif d_delta < 0: # 기준유지거리(현재속도*0.4)보다 가까이 있게 된 상황 
             if lead_objspd < -30 or (dRel < 60 and CS.clu_Vanz > 60 and lead_objspd < -5): # 끼어든 차가 급감속 하는 경우
-                self.seq_step_debug = "기준내,-4"
+                self.seq_step_debug = "기준내,-5"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 20, -5)
             elif lead_objspd < -20 or (dRel < 80 and CS.clu_Vanz > 80 and lead_objspd < -5):  # 끼어든 차가 급감속 하는 경우
-                self.seq_step_debug = "기준내,-3"
+                self.seq_step_debug = "기준내,-4"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 20, -4)
             elif lead_objspd < -10:
-                self.seq_step_debug = "기준내,-2"
+                self.seq_step_debug = "기준내,-3"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 30, -3)
             elif lead_objspd < 0:
-                self.seq_step_debug = "기준내,-2"
-                lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 50, -3)
+                self.seq_step_debug = "기준내,-3"
+                lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 40, -3)
             elif lead_objspd >= 0 and CS.VSetDis > (CS.clu_Vanz + 10) and int(CS.clu_Vanz * 0.3) < dRel: # 끼어든 차가 가속중 크루즈 설정속도가 현재 차속+15 보다 큰 상황
-                self.seq_step_debug = "기준내,-1"
-                lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 80, -2)
+                self.seq_step_debug = "기준내,-2"
+                lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 50, -2)
             else:
                 self.seq_step_debug = "점진가속"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed( CS, 60, 3) #기준거리 내 앞차가 갑자기 사라졌을 경우, delta값이 안변한 상태
