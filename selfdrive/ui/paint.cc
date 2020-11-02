@@ -151,7 +151,7 @@ static void draw_lead(UIState *s, const cereal::RadarState::LeadData::Reader &le
     fillAlpha = (int)(fmin(fillAlpha, 255));
   }
 
-  if (scene->radarDistance < 130) {
+  if (scene->radarDistance < 149) {
     draw_chevron(s, d_rel, lead.getYRel(), 25, nvgRGBA(201, 34, 49, fillAlpha), COLOR_YELLOW);  //차량 레이더가 앞차를 인식한 상태
   } else {
     draw_chevron(s, d_rel, lead.getYRel(), 25, nvgRGBA(165, 255, 135, fillAlpha), COLOR_GREEN);  //차량 레이더가 앞차를 인식하지 못한 상태
@@ -618,7 +618,7 @@ static void ui_draw_vision_maxspeed(UIState *s) {
   ui_draw_rect(s->vg, viz_maxspeed_x, viz_maxspeed_y, viz_maxspeed_w, viz_maxspeed_h, COLOR_BLACK_ALPHA(100), 30);
 
   // Draw Border
-  if (s->scene.radarDistance < 130) {
+  if (s->scene.radarDistance < 149) {
     ui_draw_rect(s->vg, viz_maxspeed_x, viz_maxspeed_y, viz_maxspeed_w, viz_maxspeed_h, COLOR_YELLOW_ALPHA(200), 20, 10);
   } else {
     ui_draw_rect(s->vg, viz_maxspeed_x, viz_maxspeed_y, viz_maxspeed_w, viz_maxspeed_h, COLOR_WHITE_ALPHA(100), 20, 10);

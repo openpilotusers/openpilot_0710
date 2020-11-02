@@ -31,8 +31,8 @@ class Spdctrl(SpdController):
 
         dst_lead_distance = (CS.clu_Vanz*self.cv_Raio)   # 기준 유지 거리
         
-        if dst_lead_distance > 120:
-            dst_lead_distance = 120
+        if dst_lead_distance > 100:
+            dst_lead_distance = 100
         #elif dst_lead_distance < 15:
             #dst_lead_distance = 15
 
