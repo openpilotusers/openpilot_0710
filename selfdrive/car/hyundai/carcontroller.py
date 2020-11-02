@@ -330,7 +330,7 @@ class CarController():
         self.lkas_switch = "-"
       if self.cruise_gap != CS.cruiseGapSet:
         self.cruise_gap = CS.cruiseGapSet
-      if CS.lead_distance < 130:
+      if CS.lead_distance < 149:
         self.leadcar_status = "O"
       else:
         self.leadcar_status = "X"
