@@ -69,25 +69,25 @@ class Spdctrl(SpdController):
                 self.seq_step_debug = "기준내,-1"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 80, -1)
             else:
-                self.seq_step_debug = "d<0,점진가속"
+                self.seq_step_debug = "점진가속"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed( CS, 60, 3) #기준거리 내 앞차가 갑자기 사라졌을 경우, delta값이 안변한 상태
 
         # 선행차량이 멀리 있는 상태에서 감속 조건
         elif dRel > 100 and lead_objspd < -5:
             self.seq_step_debug = "d>100 감속"
-            lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//11)))
+            lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//9)))
         elif dRel > 80 and lead_objspd < -5:
             self.seq_step_debug = "d>80 감속"
-            lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//9)))
+            lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//7)))
         elif dRel > 60 and lead_objspd < -5:
             self.seq_step_debug = "d>60 감속"
-            lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//7)))
+            lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//5)))
         elif dRel > 40 and lead_objspd < -5:
             self.seq_step_debug = "d>40 감속"
-            lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//5)))
+            lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//3)))
         elif dRel > 20 and lead_objspd < -5:
             self.seq_step_debug = "d>20 감속"
-            lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//4)))
+            lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//2)))
         elif dRel > 0 and lead_objspd < -5:
             self.seq_step_debug = "d>0 감속"
             lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, max(20, int(CS.clu_Vanz)-30), min(-1, -int(abs(lead_objspd)//3)))
