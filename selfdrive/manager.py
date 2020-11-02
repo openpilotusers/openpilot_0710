@@ -602,7 +602,7 @@ def main():
     ("PidKf", "5"),
     ("CameraOffsetAdj", "60"),
     ("SteerRatioAdj", "135"),
-    ("SteerActuatorDelayAdj", "30"),
+    ("SteerActuatorDelayAdj", "35"),
     ("SteerRateCostAdj", "50"),
     ("SteerLimitTimerAdj", "80"),
     ("TireStiffnessFactorAdj", "75"),
