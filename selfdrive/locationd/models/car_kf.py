@@ -150,6 +150,9 @@ class CarKalman(KalmanFilter):
     # init filter
     self.filter = EKF_sym(generated_dir, self.name, self.Q, self.initial_x, self.P_initial, dim_state, dim_state_err, global_vars=self.global_vars)
 
+  def set_steer_ratio( self, steer_ratio ):
+    x_init = self.initial_x
+    x_init[States.STEER_RATIO] = steer_ratio
 
 if __name__ == "__main__":
   generated_dir = sys.argv[2]

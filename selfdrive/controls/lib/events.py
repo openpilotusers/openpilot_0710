@@ -225,7 +225,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "Be ready to take over at any time",
       "Always keep hands on wheel and eyes on road",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
+      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 5.),
   },
 
   EventName.startupMaster: {
@@ -249,14 +249,6 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "Dashcam mode for unsupported car",
       "Always keep hands on wheel and eyes on road",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
-  },
-
-  EventName.startupGreyPanda: {
-    ET.PERMANENT: Alert(
-      "WARNING: Grey panda is deprecated",
-      "Upgrade to comma two or black panda",
-      AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
   },
 
@@ -468,6 +460,23 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1),
   },
 
+  EventName.laneChangeManual: {
+    ET.WARNING: Alert(
+      "Steer Manual Lane Change",
+      "Monitor Other Vehicles",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
+  },
+
+  EventName.emgButtonManual: {
+    ET.WARNING: Alert(
+      "TAKE CONTROL",
+      "비상 점멸등 작동중",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
+  }, 
+
+
   EventName.steerSaturated: {
     ET.WARNING: Alert(
       "TAKE CONTROL",
@@ -480,6 +489,21 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
     ET.PERMANENT: NormalPermanentAlert("Fan Malfunction", "Contact Support"),
   },
 
+  EventName.steerTorqueOver: {
+    ET.WARNING: Alert(
+      "운전자 핸들 조향",
+      "자동 조향 일시 중지",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 0, 0, .3),
+  },
+  
+  EventName.steerTorqueLow: {
+    ET.WARNING: Alert(
+      "TAKE CONTROL",
+      "자동 조향 일시 저하",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 0., 0., .1),
+  },  
   # ********** events that affect controls state transitions **********
 
   EventName.pcmEnable: {

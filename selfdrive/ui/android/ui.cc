@@ -31,8 +31,8 @@ static void ui_set_brightness(UIState *s, int brightness) {
 
 static void handle_display_state(UIState *s, bool user_input) {
 
-  static int awake_timeout = 0;
-  awake_timeout = std::max(awake_timeout-1, 0);
+ // static int awake_timeout = 0;
+  s->awake_timeout = std::max(s->awake_timeout-1, 0);
 
   // tap detection while display is off
   const float accel_samples = 5*UI_FREQ;
@@ -48,8 +48,8 @@ static void handle_display_state(UIState *s, bool user_input) {
   bool should_wake = s->awake;
   if (user_input || s->ignition || s->started) {
     should_wake = true;
-    awake_timeout = 30*UI_FREQ;
-  } else if (awake_timeout == 0){
+    s->awake_timeout = 30*UI_FREQ;
+  } else if (s->awake_timeout == 0){
     should_wake = false;
   }
 
@@ -145,12 +145,20 @@ int main(int argc, char* argv[]) {
   const int MIN_VOLUME = LEON ? 12 : 9;
   const int MAX_VOLUME = LEON ? 15 : 12;
   s->sound->setVolume(MIN_VOLUME);
-
+  int nFrame30 = 0;
   while (!do_exit) {
     if (!s->started) {
       usleep(50 * 1000);
     }
     double u1 = millis_since_boot();
+
+    // parameter Read.
+    nFrame30++;
+    if( nFrame30 > 8 )
+    {
+      s->scene.nTimer++;
+      nFrame30 = 0;
+    }
 
     ui_update(s);
 
@@ -163,6 +171,13 @@ int main(int argc, char* argv[]) {
     }
 
     // Don't waste resources on drawing in case screen is off
+    if( s->is_awake_command  || s->scene.cruiseState.standstill  )
+    {
+      touched = 1;
+      s->awake = 1;
+      s->awake_timeout = 60*UI_FREQ;  
+    } 
+  
     handle_display_state(s, touched == 1);
     if (!s->awake) {
       continue;

@@ -33,6 +33,7 @@ def dmonitoringd_thread(sm=None, pm=None):
   driver_engaged = False
 
   # 10Hz <- dmonitoringmodeld
+  standstill = True
   while True:
     sm.update()
 
@@ -41,13 +42,17 @@ def dmonitoringd_thread(sm=None, pm=None):
 
     # Get interaction
     if sm.updated['carState']:
+      steeringPressed = sm['carState'].steeringPressed
+      vEgo = sm['carState'].vEgo      
       v_cruise = sm['carState'].cruiseState.speed
       driver_engaged = len(sm['carState'].buttonEvents) > 0 or \
                         v_cruise != v_cruise_last or \
-                        sm['carState'].steeringPressed or \
+                        steeringPressed or \
                         sm['carState'].gasPressed
+
+      standstill = sm['carState'].standstill or steeringPressed   #or vEgo < 1
       if driver_engaged:
-        driver_status.update(Events(), True, sm['carState'].cruiseState.enabled, sm['carState'].standstill)
+        driver_status.update(Events(), True, sm['carState'].cruiseState.enabled, standstill)
       v_cruise_last = v_cruise
 
     if sm.updated['model']:
@@ -62,7 +67,7 @@ def dmonitoringd_thread(sm=None, pm=None):
       events.add(car.CarEvent.EventName.tooDistracted)
 
     # Update events from driver state
-    driver_status.update(events, driver_engaged, sm['carState'].cruiseState.enabled, sm['carState'].standstill)
+    driver_status.update(events, driver_engaged, sm['carState'].cruiseState.enabled, standstill)
 
     # build dMonitoringState packet
     dat = messaging.new_message('dMonitoringState')

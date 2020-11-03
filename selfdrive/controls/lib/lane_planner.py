@@ -2,7 +2,7 @@ from common.numpy_fast import interp
 import numpy as np
 from cereal import log
 
-CAMERA_OFFSET = 0.06  # m from center car to camera
+CAMERA_OFFSET = 0.00  # m from center car to camera
 
 
 def compute_path_pinv(l=50):
@@ -24,7 +24,7 @@ def eval_poly(poly, x):
 def calc_d_poly(l_poly, r_poly, p_poly, l_prob, r_prob, lane_width, v_ego):
   # This will improve behaviour when lanes suddenly widen
   # these numbers were tested on 2000segments and found to work well
-  lane_width = min(4.0, lane_width)
+  lane_width = min(3.5, lane_width)
   width_poly = l_poly - r_poly
   prob_mods = []
   for t_check in [0.0, 1.5, 3.0]:
@@ -52,9 +52,9 @@ class LanePlanner():
     self.p_poly = [0., 0., 0., 0.]
     self.d_poly = [0., 0., 0., 0.]
 
-    self.lane_width_estimate = 3.7
+    self.lane_width_estimate = 3.25
     self.lane_width_certainty = 1.0
-    self.lane_width = 3.7
+    self.lane_width = 3.25
 
     self.l_prob = 0.
     self.r_prob = 0.
@@ -81,21 +81,24 @@ class LanePlanner():
       self.l_lane_change_prob = md.meta.desireState[log.PathPlan.Desire.laneChangeLeft - 1]
       self.r_lane_change_prob = md.meta.desireState[log.PathPlan.Desire.laneChangeRight - 1]
 
-  def update_d_poly(self, v_ego):
+  def update_d_poly(self, v_ego, camera_offset ):
     # only offset left and right lane lines; offsetting p_poly does not make sense
-    self.l_poly[3] += CAMERA_OFFSET
-    self.r_poly[3] += CAMERA_OFFSET
+    self.l_poly[3] += CAMERA_OFFSET + camera_offset
+    self.r_poly[3] += CAMERA_OFFSET + camera_offset
 
     # Find current lanewidth
     self.lane_width_certainty += 0.05 * (self.l_prob * self.r_prob - self.lane_width_certainty)
     current_lane_width = abs(self.l_poly[3] - self.r_poly[3])
     self.lane_width_estimate += 0.005 * (current_lane_width - self.lane_width_estimate)
-    speed_lane_width = interp(v_ego, [0., 31.], [2.8, 3.5])
+    speed_lane_width = interp(v_ego, [0., 31.], [2.0, 3.5])
     self.lane_width = self.lane_width_certainty * self.lane_width_estimate + \
                       (1 - self.lane_width_certainty) * speed_lane_width
 
     self.d_poly = calc_d_poly(self.l_poly, self.r_poly, self.p_poly, self.l_prob, self.r_prob, self.lane_width, v_ego)
 
+
+"""
   def update(self, v_ego, md):
     self.parse_model(md)
     self.update_d_poly(v_ego)
+"""

@@ -447,10 +447,25 @@ def manager_thread():
   cloudlog.info("manager start")
   cloudlog.info({"environ": os.environ})
 
-  # save boot log
-  subprocess.call(["./loggerd", "--bootlog"], cwd=os.path.join(BASEDIR, "selfdrive/loggerd"))
-
   params = Params()
+  EnableLogger = (params.get("RecordFront") != b"0")
+  
+  if not EnableLogger:
+    car_started_processes.remove( 'loggerd' )
+    persistent_processes.remove( 'logmessaged' )
+    persistent_processes.remove( 'uploader' )
+    persistent_processes.remove( 'logcatd' )
+    persistent_processes.remove( 'updated' )
+    persistent_processes.remove( 'deleter' )
+    persistent_processes.remove('tombstoned')
+  else:
+    # save boot log
+    subprocess.call(["./loggerd", "--bootlog"], cwd=os.path.join(BASEDIR, "selfdrive/loggerd")) 
+
+  # save boot log
+  #subprocess.call(["./loggerd", "--bootlog"], cwd=os.path.join(BASEDIR, "selfdrive/loggerd"))
+
+
 
   # start daemon processes
   for p in daemon_processes:
@@ -478,7 +493,7 @@ def manager_thread():
   while 1:
     msg = messaging.recv_sock(thermal_sock, wait=True)
 
-    if msg.thermal.freeSpace < 0.05:
+    if msg.thermal.freeSpace < 0.1:
       logger_dead = True
 
     if msg.thermal.started:

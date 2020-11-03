@@ -67,7 +67,7 @@ class ParamsLearner:
 
 def main(sm=None, pm=None):
   if sm is None:
-    sm = messaging.SubMaster(['liveLocationKalman', 'carState'], poll=['liveLocationKalman'])
+    sm = messaging.SubMaster(['liveLocationKalman', 'carState', "pathPlan"], poll=['liveLocationKalman'])
   if pm is None:
     pm = messaging.PubMaster(['liveParameters'])
 
@@ -77,7 +77,10 @@ def main(sm=None, pm=None):
   CP = car.CarParams.from_bytes(params_reader.get("CarParams", block=True))
   cloudlog.info("paramsd got CarParams")
 
-  min_sr, max_sr = 0.5 * CP.steerRatio, 2.0 * CP.steerRatio
+  min_sr, max_sr = 0.3 * CP.steerRatio, 2.0 * CP.steerRatio
+
+  lateralsRatom = CP.lateralsRatom
+  carParams_learnerParams = lateralsRatom.learnerParams
 
   params = params_reader.get("LiveParameters")
 
@@ -111,6 +114,10 @@ def main(sm=None, pm=None):
 
   while True:
     sm.update()
+
+    if not carParams_learnerParams and  sm.updated['pathPlan']:
+      steerRatio = sm['pathPlan'].steerRatio
+      learner.kf.set_steer_ratio( steerRatio )
 
     for which, updated in sm.updated.items():
       if updated:

@@ -549,6 +549,12 @@ struct ControlsState @0x97ff69c53601abf1 {
   decelForModel @54 :Bool;
   canErrorCounter @57 :UInt32;
 
+  output @58 :Float32;
+  alertTextMsg1  @59 :Text;
+  alertTextMsg2  @60 :Text;
+  modelSum  @61 :Float32;
+
+
   lateralControlState :union {
     indiState @52 :LateralINDIState;
     pidState @53 :LateralPIDState;
@@ -865,7 +871,9 @@ struct PathPlan {
   desire @17 :Desire;
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
-
+  steerRatio @20 :Float32;
+  steerActuatorDelay @21 :Float32;
+  
   enum Desire {
     none @0;
     turnLeft @1;
@@ -881,6 +889,7 @@ struct PathPlan {
     preLaneChange @1;
     laneChangeStarting @2;
     laneChangeFinishing @3;
+    laneChangeDone @4;    
   }
 
   enum LaneChangeDirection {

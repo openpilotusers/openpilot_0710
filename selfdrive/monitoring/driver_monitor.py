@@ -17,9 +17,9 @@ EventName = car.CarEvent.EventName
 _AWARENESS_TIME = 35.  # passive wheel touch total timeout
 _AWARENESS_PRE_TIME_TILL_TERMINAL = 7.
 _AWARENESS_PROMPT_TIME_TILL_TERMINAL = 5.
-_DISTRACTED_TIME = 11.
-_DISTRACTED_PRE_TIME_TILL_TERMINAL = 8.
-_DISTRACTED_PROMPT_TIME_TILL_TERMINAL = 6.
+_DISTRACTED_TIME = 30.   #default 11.
+_DISTRACTED_PRE_TIME_TILL_TERMINAL = 16.  #defualt 8.
+_DISTRACTED_PROMPT_TIME_TILL_TERMINAL =  12.  #default 6.
 
 _FACE_THRESHOLD = 0.6
 _EYE_THRESHOLD = 0.6
@@ -137,8 +137,8 @@ class DriverStatus():
     if active_monitoring:
       # when falling back from passive mode to active mode, reset awareness to avoid false alert
       if not self.active_monitoring_mode:
-        self.awareness_passive = self.awareness
-        self.awareness = self.awareness_active
+        self.awareness_passive = 1 # self.awareness
+        self.awareness = 1 # self.awareness_active
 
       self.threshold_pre = _DISTRACTED_PRE_TIME_TILL_TERMINAL / _DISTRACTED_TIME
       self.threshold_prompt = _DISTRACTED_PROMPT_TIME_TILL_TERMINAL / _DISTRACTED_TIME
@@ -146,8 +146,8 @@ class DriverStatus():
       self.active_monitoring_mode = True
     else:
       if self.active_monitoring_mode:
-        self.awareness_active = self.awareness
-        self.awareness = self.awareness_passive
+        self.awareness_active = 1  # self.awareness
+        self.awareness = 1  # self.awareness_passive
 
       self.threshold_pre = _AWARENESS_PRE_TIME_TILL_TERMINAL / _AWARENESS_TIME
       self.threshold_prompt = _AWARENESS_PROMPT_TIME_TILL_TERMINAL / _AWARENESS_TIME
@@ -221,6 +221,8 @@ class DriverStatus():
   def update(self, events, driver_engaged, ctrl_active, standstill):
     if (driver_engaged and self.awareness > 0) or not ctrl_active:
       # reset only when on disengagement if red reached
+      self.terminal_time = 0
+      self.terminal_alert_cnt = 0      
       self.awareness = 1.
       self.awareness_active = 1.
       self.awareness_passive = 1.
@@ -248,8 +250,21 @@ class DriverStatus():
       self.awareness = max(self.awareness - self.step_change, -0.1)
 
     alert = None
+    if standstill:
+      self.terminal_time = 0
+      self.awareness = 1.
+      self.awareness_active = 1.
+      self.awareness_passive = 1.
+
     if self.awareness <= 0.:
       # terminal red alert: disengagement required
+      if self.terminal_time > 3:
+        alert = EventName.driverDistracted if self.active_monitoring_mode else EventName.driverUnresponsive
+      else:
+        self.awareness = self.threshold_prompt
+        self.terminal_time += 1
+
+
       alert = EventName.driverDistracted if self.active_monitoring_mode else EventName.driverUnresponsive
       self.terminal_time += 1
       if awareness_prev > 0.:

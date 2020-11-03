@@ -207,6 +207,7 @@ def thermald_thread():
   thermal_config = get_thermal_config()
 
   while 1:
+    ts = sec_since_boot()    
     health = messaging.recv_sock(health_sock, wait=True)
     location = messaging.recv_sock(location_sock)
     location = location.gpsLocation if location else None
@@ -325,7 +326,12 @@ def thermald_thread():
     update_failed_count = 0 if update_failed_count is None else int(update_failed_count)
     last_update_exception = params.get("LastUpdateException", encoding='utf8')
 
-    if update_failed_count > 15 and last_update_exception is not None:
+    
+
+    EnableLogger = (params.get("RecordFront") != b"0")
+    if not EnableLogger:
+      pass
+    elif update_failed_count > 15 and last_update_exception is not None:
       if current_branch in ["release2", "dashcam"]:
         extra_text = "Ensure the software is correctly installed"
       else:
@@ -348,6 +354,8 @@ def thermald_thread():
       set_offroad_alert_if_changed("Offroad_ConnectivityNeeded", False)
       set_offroad_alert_if_changed("Offroad_ConnectivityNeededPrompt", False)
 
+    
+
     startup_conditions["not_uninstalling"] = not params.get("DoUninstall") == b"1"
     startup_conditions["accepted_terms"] = params.get("HasAcceptedTerms") == terms_version
     completed_training = params.get("CompletedTrainingVersion") == training_version
@@ -365,7 +373,12 @@ def thermald_thread():
     # controls will warn with CPU above 95 or battery above 60
     startup_conditions["device_temp_good"] = thermal_status < ThermalStatus.danger
     set_offroad_alert_if_changed("Offroad_TemperatureTooHigh", (not startup_conditions["device_temp_good"]))
-    should_start = all(startup_conditions.values())
+
+    is_rhd_region = int(Params().get("IsRHD"))
+    if is_rhd_region:
+      should_start = True   # 영상보기.
+    else:
+      should_start = all(startup_conditions.values())
 
     if should_start:
       if not should_start_prev:
@@ -388,7 +401,7 @@ def thermald_thread():
         os.system('echo powersave > /sys/class/devfreq/soc:qcom,cpubw/governor')
 
     # Offroad power monitoring
-    pm.calculate(health)
+    pm.calculate(health, msg)
     msg.thermal.offroadPowerUsage = pm.get_power_used()
     msg.thermal.carBatteryCapacity = max(0, pm.get_car_battery_capacity())
 
@@ -413,6 +426,9 @@ def thermald_thread():
 
     should_start_prev = should_start
     startup_conditions_prev = startup_conditions.copy()
+
+    if usb_power:
+      pm.charging_ctrl( msg, ts, 60, 40 )
 
     # report to server once per minute
     if (count % int(60. / DT_TRML)) == 0:
