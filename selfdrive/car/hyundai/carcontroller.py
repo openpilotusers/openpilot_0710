@@ -170,7 +170,7 @@ class CarController():
     if abs(self.outScale) >= 1 and CS.out.vEgo > 8:
       self.steerMax_timer += 1
       if self.steerMax_timer > 5:
-        self.steerMax += 5
+        self.steerMax += int(CS.out.vEgo//2)
         self.steerMax_timer = 0
         if self.steerMax > SteerLimitParams.STEER_MAX:
           self.steerMax = SteerLimitParams.STEER_MAX
