@@ -624,6 +624,7 @@ def main():
     ("OpkrBlindSpotDetect", "0"),
     ("OpkrMaxAngleLimit", "90"),
     ("OpkrAutoResumeOption", "0"),
+    ("OpkrAngleOffsetSelect", "0"),
   ]
 
   # set unset params

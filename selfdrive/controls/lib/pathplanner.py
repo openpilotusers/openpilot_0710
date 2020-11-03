@@ -88,6 +88,8 @@ class PathPlanner():
 
     self.new_steerRatio = CP.steerRatio
 
+    self.angle_offset_select = int(Params().get('OpkrAngleOffsetSelect'))
+
   def setup_mpc(self):
     self.libmpc = libmpc_py.libmpc
     self.libmpc.init(MPC_COST_LAT.PATH, MPC_COST_LAT.LANE, MPC_COST_LAT.HEADING, self.steer_rate_cost)
@@ -273,8 +275,10 @@ class PathPlanner():
 
     plan_send.pathPlan.angleSteers = float(self.angle_steers_des_mpc)
     plan_send.pathPlan.rateSteers = float(rate_desired)
-    plan_send.pathPlan.angleOffset = float(sm['liveParameters'].angleOffset)
-    #plan_send.pathPlan.angleOffset = float(sm['liveParameters'].angleOffsetAverage)
+    if self.angle_offset_select == 0:
+      plan_send.pathPlan.angleOffset = float(sm['liveParameters'].angleOffsetAverage)
+    else:
+      plan_send.pathPlan.angleOffset = float(sm['liveParameters'].angleOffset)
     plan_send.pathPlan.mpcSolutionValid = bool(plan_solution_valid)
     plan_send.pathPlan.paramsValid = bool(sm['liveParameters'].valid)
 

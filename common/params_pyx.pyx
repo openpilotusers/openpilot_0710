@@ -121,6 +121,7 @@ keys = {
   b"OpkrBlindSpotDetect": [TxType.PERSISTENT],
   b"OpkrMaxAngleLimit": [TxType.PERSISTENT],
   b"OpkrAutoResumeOption": [TxType.PERSISTENT],
+  b"OpkrAngleOffsetSelect": [TxType.PERSISTENT],
 }
 
 def ensure_bytes(v):
