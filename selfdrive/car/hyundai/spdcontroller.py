@@ -229,7 +229,7 @@ class SpdController():
 
         else:
             if delta_speed < -safety_dis:
-              time = 100
+              time = int(set_time)
 
         return time, set_speed
 
