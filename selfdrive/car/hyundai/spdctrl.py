@@ -22,7 +22,7 @@ class Spdctrl(SpdController):
         yRele = plan.yyRel #EON Lead
         vRele = plan.vvRel #EON Lead
         lead_set_speed = int(round(self.cruise_set_speed_kph))
-        lead_wait_cmd = 250
+        lead_wait_cmd = 300
 
         dRel = 150
         vRel = 0
@@ -120,19 +120,19 @@ class Spdctrl(SpdController):
         # 2. 커브 감속.
         #if self.cruise_set_speed_kph >= 100:
         if CS.out.cruiseState.modeSel == 1:
-            if model_speed < 60 and CS.clu_Vanz > 40:
+            if model_speed < 60 and CS.clu_Vanz > 40 and CS.lead_distance >= 15:
                 set_speed = self.cruise_set_speed_kph - int(CS.clu_Vanz * 0.2)
                 self.seq_step_debug = "커브감속-4"
                 wait_time_cmd = 70
-            elif model_speed < 70 and CS.clu_Vanz > 40:
+            elif model_speed < 70 and CS.clu_Vanz > 40 and CS.lead_distance >= 15:
                 set_speed = self.cruise_set_speed_kph - int(CS.clu_Vanz * 0.15)
                 self.seq_step_debug = "커브감속-3"
                 wait_time_cmd = 80
-            elif model_speed < 80 and CS.clu_Vanz > 40:
+            elif model_speed < 80 and CS.clu_Vanz > 40 and CS.lead_distance >= 15:
                 set_speed = self.cruise_set_speed_kph - int(CS.clu_Vanz * 0.1)
                 self.seq_step_debug = "커브감속-2"
                 wait_time_cmd = 90
-            elif model_speed < 90 and CS.clu_Vanz > 40:
+            elif model_speed < 90 and CS.clu_Vanz > 40 and CS.lead_distance >= 15:
                 set_speed = self.cruise_set_speed_kph - int(CS.clu_Vanz * 0.05)
                 self.seq_step_debug = "커브감속-1"
                 wait_time_cmd = 100
