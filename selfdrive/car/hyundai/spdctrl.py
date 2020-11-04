@@ -68,9 +68,9 @@ class Spdctrl(SpdController):
             elif lead_objspd < 0:
                 self.seq_step_debug = "기준내,-2"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 45, -2)
-            elif lead_objspd >= 0 and CS.VSetDis > (CS.clu_Vanz + 10) and int(CS.clu_Vanz * 0.3) < dRel: # 끼어든 차가 가속중 크루즈 설정속도가 현재 차속+10 보다 큰 상황
+            elif lead_objspd => 0 and int(CS.clu_Vanz * 0.3) > dRel > 1: 
                 self.seq_step_debug = "기준내,-1"
-                lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 100, -1)
+                lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 80, -1)
             else:
                 self.seq_step_debug = "d<0,거리유지"
 
