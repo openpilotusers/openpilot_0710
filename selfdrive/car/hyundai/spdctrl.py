@@ -68,7 +68,7 @@ class Spdctrl(SpdController):
             elif lead_objspd < 0:
                 self.seq_step_debug = "기준내,-2"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 45, -2)
-            elif lead_objspd => 0 and int(CS.clu_Vanz * 0.3) > dRel > 1: 
+            elif lead_objspd >= 0 and int(CS.clu_Vanz * 0.3) > dRel > 1: 
                 self.seq_step_debug = "기준내,-1"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed(CS, 80, -1)
             else:
