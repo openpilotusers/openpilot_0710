@@ -97,7 +97,7 @@ class Spdctrl(SpdController):
             elif CS.clu_Vanz < 30 and lead_objspd < 0 and CS.VSetDis > 30:
                 self.seq_step_debug = "SS>VS,30이하"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed( CS, 20, -3)
-            elif d_delta = 0 and lead_objspd = 0:
+            elif d_delta == 0 and lead_objspd == 0:
                 self.seq_step_debug = "선행차없음"
                 lead_wait_cmd, lead_set_speed = self.get_tm_speed( CS, 65, 3)
             else:
