@@ -181,6 +181,7 @@ typedef struct UIScene {
     float laneWidth;
     float steerRatio;
     float steerActuatorDelay;
+    float steerRateCost;
 
     float cProb;
     float lProb;
@@ -263,6 +264,8 @@ typedef struct UIState {
   bool is_metric;
   
   int is_OpenpilotViewEnabled;
+  int lateral_control;
+
 
   int nOpkrAutoScreenOff;
   int nOpkrUIBrightness;

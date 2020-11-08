@@ -176,8 +176,8 @@ bool screen_lock_button_clicked(int touch_x, int touch_y, dashcam_element el) {
 }
 
 bool screen_button_clicked(int touch_x, int touch_y) {
-  if (touch_x >= 1660 && touch_x <= 1810) {
-    if (touch_y >= 885 && touch_y <= 1035) {
+  if (touch_x >= 1745 && touch_x <= 1885) {
+    if (touch_y >= 905 && touch_y <= 1045) {
       return true;
     }
   }
@@ -262,20 +262,22 @@ static void screen_draw_button(UIState *s, int touch_x, int touch_y) {
   if (s->vision_connected){
 
     if (captureState == CAPTURE_STATE_CAPTURING) {
-      draw_lock_button(s);
+      //draw_lock_button(s);
     }
 
-    int btn_w = 150;
-    int btn_h = 150;
-    int btn_x = 1920 - btn_w;
-    int btn_y = 1080 - btn_h;
+    int btn_w = 140;
+    int btn_h = 140;
+    int btn_x = 1920 - btn_w - 35;
+    int btn_y = 1080 - btn_h - 35;
+    int btn_xc = btn_x + (btn_w/2);
+    int btn_yc = btn_y + (btn_h/2);
     nvgBeginPath(s->vg);
-      nvgRoundedRect(s->vg, btn_x-110, btn_y-45, btn_w, btn_h, 100);
+      nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 100);
       nvgStrokeColor(s->vg, nvgRGBA(255,255,255,80));
       nvgStrokeWidth(s->vg, 6);
       nvgStroke(s->vg);
 
-      nvgFontSize(s->vg, 60);
+      nvgFontSize(s->vg, 50);
 
       if (captureState == CAPTURE_STATE_CAPTURING) {
         NVGcolor fillColor = nvgRGBA(255,0,0,150);
@@ -286,7 +288,8 @@ static void screen_draw_button(UIState *s, int touch_x, int touch_y) {
       else {
         nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 200));
       }
-      nvgText(s->vg,btn_x-38,btn_y+50,"REC",NULL);
+      nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+      nvgText(s->vg,btn_xc,btn_yc,"REC",NULL);
   }
 
   if (captureState == CAPTURE_STATE_CAPTURING) {
@@ -326,7 +329,7 @@ bool dashcam( UIState *s, int touch_x, int touch_y ) {
   bool touched = false;
   
   screen_draw_button(s, touch_x, touch_y);
-  if (screen_button_clicked(touch_x,touch_y)) {
+  if ((screen_button_clicked(touch_x,touch_y)) && (s->scene.uilayout_sidebarcollapsed == true)) {
     click_elapsed_time = get_time() - click_time;
 
     if (click_elapsed_time > 0) {

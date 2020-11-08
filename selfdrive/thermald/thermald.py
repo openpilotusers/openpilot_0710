@@ -41,7 +41,7 @@ CURRENT_TAU = 15.   # 15s time constant
 CPU_TEMP_TAU = 5.   # 5s time constant
 DAYS_NO_CONNECTIVITY_MAX = 7  # do not allow to engage after a week without internet
 DAYS_NO_CONNECTIVITY_PROMPT = 4  # send an offroad prompt after 4 days with no internet
-DISCONNECT_TIMEOUT = 5.  # wait 5 seconds before going offroad after disconnect so you get an alert
+DISCONNECT_TIMEOUT = 3.  # wait 5 seconds before going offroad after disconnect so you get an alert
 
 prev_offroad_states: Dict[str, Tuple[bool, Optional[str]]] = {}
 
@@ -276,7 +276,11 @@ def thermald_thread():
     opkrAutoShutdown = 10800
   else:
     opkrAutoShutdown = 18000
-
+  
+  lateral_control_method = int(params.get("LateralControlMethod"))
+  lateral_control_method_prev = int(params.get("LateralControlMethod"))
+  lateral_control_method_cnt = 0
+  lateral_control_method_trigger = 0
   while 1:
     ts = sec_since_boot()
     health = messaging.recv_sock(health_sock, wait=True)
@@ -288,7 +292,15 @@ def thermald_thread():
       usb_power = health.health.usbPowerMode != log.HealthData.UsbPowerMode.client
 
       # If we lose connection to the panda, wait 5 seconds before going offroad
-      if health.health.hwType == log.HealthData.HwType.unknown:
+      lateral_control_method = int(params.get("LateralControlMethod"))
+      if lateral_control_method != lateral_control_method_prev and lateral_control_method_trigger == 0:
+        startup_conditions["ignition"] = False
+        lateral_control_method_trigger = 1
+      elif lateral_control_method != lateral_control_method_prev:
+        lateral_control_method_cnt += 1
+        if lateral_control_method_cnt > 1 / DT_TRML:
+          lateral_control_method_prev = lateral_control_method
+      elif health.health.hwType == log.HealthData.HwType.unknown:
         no_panda_cnt += 1
         if no_panda_cnt > DISCONNECT_TIMEOUT / DT_TRML:
           if startup_conditions["ignition"]:
@@ -299,6 +311,9 @@ def thermald_thread():
         no_panda_cnt = 0
         startup_conditions["ignition"] = health.health.ignitionLine or health.health.ignitionCan
         sound_trigger == 1
+        lateral_control_method_cnt = 0
+        lateral_control_method_trigger = 0
+
 
       # Setup fan handler on first connect to panda
       if handle_fan is None and health.health.hwType != log.HealthData.HwType.unknown:

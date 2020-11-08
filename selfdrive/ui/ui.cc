@@ -37,6 +37,7 @@ void ui_init(UIState *s) {
   read_param(&s->nDebugUi1, "DebugUi1");
   read_param(&s->nDebugUi2, "DebugUi2");
   read_param(&s->nOpkrBlindSpotDetect, "OpkrBlindSpotDetect");
+  read_param(&s->lateral_control, "LateralControlMethod");
 
   s->fb = framebuffer_init("ui", 0, true, &s->fb_w, &s->fb_h);
   assert(s->fb);
@@ -318,6 +319,7 @@ void update_sockets(UIState *s) {
     scene.pathPlan.rProb = data.getRProb();
     scene.pathPlan.angleOffset = data.getAngleOffset();
     scene.pathPlan.steerActuatorDelay = data.getSteerActuatorDelay();
+    scene.pathPlan.steerRateCost = data.getSteerRateCost();
 
     auto l_list = data.getLPoly();
     auto r_list = data.getRPoly();
@@ -385,6 +387,7 @@ void ui_update(UIState *s) {
     read_param(&s->nDebugUi1, "DebugUi1");
     read_param(&s->nDebugUi2, "DebugUi2");
     read_param(&s->nOpkrBlindSpotDetect, "OpkrBlindSpotDetect");
+    read_param(&s->lateral_control, "LateralControlMethod");
   } else if ((s->sm)->frame % (6*UI_FREQ) == 0) {
     int param_read = read_param(&s->last_athena_ping, "LastAthenaPingTime");
     if (param_read != 0) { // Failed to read param

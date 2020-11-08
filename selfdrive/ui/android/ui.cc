@@ -15,6 +15,7 @@
 #include "paint.hpp"
 #include "android/sl_sound.hpp"
 #include "dashcam.h"
+#include "latcontrol.h"
 
 volatile sig_atomic_t do_exit = 0;
 static void set_do_exit(int sig) {
@@ -181,6 +182,10 @@ int main(int argc, char* argv[]) {
     int touched = touch_poll(&touch, &touch_x, &touch_y, 0);
 
     if ((s->awake) && (dashcam(s, touch_x, touch_y))) {
+      touched = 0;
+    }
+
+    if ((s->awake) && (latcontrol(s, touch_x, touch_y))) {
       touched = 0;
     }
 

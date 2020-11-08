@@ -86,7 +86,13 @@ class PathPlanner():
     self.lane_change_adjust_vel = [16, 30]
     self.lane_change_adjust_new = 0.0
 
+    self.angle_differ_range = [0, 45]
+    self.steerRatio_range = [CP.steerRatio, 18]
+
     self.new_steerRatio = CP.steerRatio
+    self.new_steer_rate_cost = CP.steerRateCost
+
+    self.steer_rate_cost_range = [CP.steerRateCost, 0.1]
 
     self.angle_offset_select = int(Params().get('OpkrAngleOffsetSelect'))
 
@@ -110,6 +116,8 @@ class PathPlanner():
     v_ego = sm['carState'].vEgo
     angle_steers = sm['carState'].steeringAngle
     active = sm['controlsState'].active
+    anglesteer_current = sm['controlsState'].angleSteers
+    anglesteer_desire = sm['controlsState'].angleSteersDes
 
     #saturated_steering = sm['controlsState'].steerSaturated
     #live_steerratio = sm['liveParameters'].steerRatio
@@ -126,19 +134,27 @@ class PathPlanner():
     # Run MPC
     self.angle_steers_des_prev = self.angle_steers_des_mpc
 
+    self.angle_diff = abs(anglesteer_desire) - abs(anglesteer_current)
+
     if abs(output_scale) >= 1 and v_ego > 8:
-      self.mpc_frame += 1
-      if self.mpc_frame % 5 == 0:
-        self.new_steerRatio += (round(v_ego, 1) * 0.01)
-        if self.new_steerRatio >= 18.0:
-          self.new_steerRatio = 18.0
-        self.mpc_frame = 0
+      self.new_steerRatio = interp(self.angle_diff, self.angle_differ_range, self.steerRatio_range)
+      self.new_steer_rate_cost = interp(self.angle_diff, self.angle_differ_range, self.steer_rate_cost_range)
+    #if abs(output_scale) >= 1 and v_ego > 8 and ((abs(anglesteer_desire) - abs(anglesteer_current)) > 20):
+    #  self.mpc_frame += 1
+    #  if self.mpc_frame % 5 == 0:
+    #    self.new_steerRatio += (round(v_ego, 1) * 0.025)
+    #    if self.new_steerRatio >= 17.0:
+    #      self.new_steerRatio = 17.0
+    #    self.mpc_frame = 0
     else:
       self.mpc_frame += 1
       if self.mpc_frame % 5 == 0:
-        self.new_steerRatio -= 0.2
+        self.new_steerRatio -= 0.5
         if self.new_steerRatio <= CP.steerRatio:
           self.new_steerRatio = CP.steerRatio
+        self.new_steer_rate_cost += 0.05
+        if self.new_steer_rate_cost >= CP.steerRateCost:
+          self.new_steer_rate_cost = CP.steerRateCost
         self.mpc_frame = 0
 
     # Update vehicle model
@@ -225,10 +241,7 @@ class PathPlanner():
     self.LP.update_d_poly(v_ego, sm)
 
     # account for actuation delay
-    if mode_select == 3:
-      self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, (CP.steerActuatorDelay + 0.05))
-    else:
-      self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, CP.steerActuatorDelay)
+    self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, CP.steerActuatorDelay)
 
     v_ego_mpc = max(v_ego, 5.0)  # avoid mpc roughness due to low speed
     self.libmpc.run_mpc(self.cur_state, self.mpc_solution,
@@ -251,7 +264,7 @@ class PathPlanner():
     mpc_nans = any(math.isnan(x) for x in self.mpc_solution[0].delta)
     t = sec_since_boot()
     if mpc_nans:
-      self.libmpc.init(MPC_COST_LAT.PATH, MPC_COST_LAT.LANE, MPC_COST_LAT.HEADING, CP.steerRateCost)
+      self.libmpc.init(MPC_COST_LAT.PATH, MPC_COST_LAT.LANE, MPC_COST_LAT.HEADING, self.new_steer_rate_cost)
       self.cur_state[0].delta = math.radians(angle_steers - angle_offset) / VM.sR
 
       if t > self.last_cloudlog_t + 5.0:
@@ -287,6 +300,7 @@ class PathPlanner():
     plan_send.pathPlan.laneChangeDirection = self.lane_change_direction
     plan_send.pathPlan.steerRatio = VM.sR
     plan_send.pathPlan.steerActuatorDelay = CP.steerActuatorDelay
+    plan_send.pathPlan.steerRateCost = self.new_steer_rate_cost
     plan_send.pathPlan.outputScale = output_scale
 
     pm.send('pathPlan', plan_send)
