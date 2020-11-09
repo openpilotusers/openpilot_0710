@@ -82,7 +82,7 @@ class PathPlanner():
 
     self.mpc_frame = 0
 
-    self.lane_change_adjust = [0.15, 1.3]
+    self.lane_change_adjust = [0.2, 1.3]
     self.lane_change_adjust_vel = [16, 30]
     self.lane_change_adjust_new = 0.0
 

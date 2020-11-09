@@ -217,9 +217,9 @@ class CarController():
         if self.steerDeltaDown < int(SteerLimitParams.STEER_DELTA_DOWN):
           self.steerDeltaDown = int(SteerLimitParams.STEER_DELTA_DOWN)
 
-    param.STEER_MAX = min(param.STEER_MAX, int(self.steerMax))
-    param.STEER_DELTA_UP = max(param.STEER_DELTA_UP, int(self.steerDeltaUp))
-    param.STEER_DELTA_DOWN = max(param.STEER_DELTA_DOWN, int(self.steerDeltaDown))
+    param.STEER_MAX = min(SteerLimitParams.STEER_MAX, int(self.steerMax))
+    param.STEER_DELTA_UP = max(SteerLimitParams.STEER_DELTA_UP, int(self.steerDeltaUp))
+    param.STEER_DELTA_DOWN = max(SteerLimitParams.STEER_DELTA_DOWN, int(self.steerDeltaDown))
 
 
     # Steering Torque
