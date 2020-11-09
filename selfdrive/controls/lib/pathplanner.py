@@ -82,17 +82,20 @@ class PathPlanner():
 
     self.mpc_frame = 0
 
-    self.lane_change_adjust = [0.2, 1.3]
-    self.lane_change_adjust_vel = [16, 30]
+    self.lane_change_adjust = [0.12, 0.19, 0.9, 1.4]
+    self.lane_change_adjust_vel = [8.3, 16, 22, 30]
     self.lane_change_adjust_new = 0.0
 
     self.angle_differ_range = [0, 30]
     self.steerRatio_range = [CP.steerRatio, 18]
-
     self.new_steerRatio = CP.steerRatio
-    self.new_steer_rate_cost = CP.steerRateCost
 
+    self.new_steer_rate_cost = CP.steerRateCost
     self.steer_rate_cost_range = [CP.steerRateCost, 0.1]
+
+    self.steer_actuator_delay_range = [0, 0.1, 0.15, CP.steerActuatorDelay]
+    self.steer_actuator_delay_vel = [0, 3, 8, 16]
+    self.new_steer_actuator_delay = CP.steerActuatorDelay
 
     self.angle_offset_select = int(Params().get('OpkrAngleOffsetSelect'))
 
@@ -156,6 +159,8 @@ class PathPlanner():
         if self.new_steer_rate_cost >= CP.steerRateCost:
           self.new_steer_rate_cost = CP.steerRateCost
         self.mpc_frame = 0
+
+    self.new_steer_actuator_delay = interp(v_ego, self.steer_actuator_delay_vel, self.steer_actuator_delay_range)
 
     # Update vehicle model
     x = max(sm['liveParameters'].stiffnessFactor, 0.1)
@@ -241,7 +246,7 @@ class PathPlanner():
     self.LP.update_d_poly(v_ego, sm)
 
     # account for actuation delay
-    self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, CP.steerActuatorDelay)
+    self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, self.new_steer_actuator_delay)
 
     v_ego_mpc = max(v_ego, 5.0)  # avoid mpc roughness due to low speed
     self.libmpc.run_mpc(self.cur_state, self.mpc_solution,
@@ -299,7 +304,7 @@ class PathPlanner():
     plan_send.pathPlan.laneChangeState = self.lane_change_state
     plan_send.pathPlan.laneChangeDirection = self.lane_change_direction
     plan_send.pathPlan.steerRatio = VM.sR
-    plan_send.pathPlan.steerActuatorDelay = CP.steerActuatorDelay
+    plan_send.pathPlan.steerActuatorDelay = self.new_steer_actuator_delay
     plan_send.pathPlan.steerRateCost = self.new_steer_rate_cost
     plan_send.pathPlan.outputScale = output_scale
 
