@@ -82,11 +82,11 @@ class PathPlanner():
 
     self.mpc_frame = 0
 
-    self.lane_change_adjust = [0.2, 1.3]
+    self.lane_change_adjust = [0.15, 1.3]
     self.lane_change_adjust_vel = [16, 30]
     self.lane_change_adjust_new = 0.0
 
-    self.angle_differ_range = [0, 45]
+    self.angle_differ_range = [0, 30]
     self.steerRatio_range = [CP.steerRatio, 18]
 
     self.new_steerRatio = CP.steerRatio
@@ -149,10 +149,10 @@ class PathPlanner():
     else:
       self.mpc_frame += 1
       if self.mpc_frame % 5 == 0:
-        self.new_steerRatio -= 0.5
+        self.new_steerRatio -= 0.2
         if self.new_steerRatio <= CP.steerRatio:
           self.new_steerRatio = CP.steerRatio
-        self.new_steer_rate_cost += 0.05
+        self.new_steer_rate_cost += 0.02
         if self.new_steer_rate_cost >= CP.steerRateCost:
           self.new_steer_rate_cost = CP.steerRateCost
         self.mpc_frame = 0

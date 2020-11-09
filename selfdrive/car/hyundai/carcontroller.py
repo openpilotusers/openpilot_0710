@@ -130,14 +130,14 @@ class CarController():
     self.longcontrol = CP.openpilotLongitudinalControl
     self.scc_live = not CP.radarOffCan
 
-    self.angle_differ_range = [0, 45]
+    self.angle_differ_range = [0, 30]
     self.steerMax_range = [255, SteerLimitParams.STEER_MAX]
-    self.steerDeltaUp_range = [3, SteerLimitParams.STEER_DELTA_UP]
-    self.steerDeltaDown_range = [7, SteerLimitParams.STEER_DELTA_DOWN]
+    self.steerDeltaUp_range = [SteerLimitParams.STEER_DELTA_UP, 5]
+    self.steerDeltaDown_range = [SteerLimitParams.STEER_DELTA_DOWN, 10]
 
     self.steerMax = 255
-    self.steerDeltaUp = 3
-    self.steerDeltaDown = 7
+    self.steerDeltaUp = int(SteerLimitParams.STEER_DELTA_UP)
+    self.steerDeltaDown = int(SteerLimitParams.STEER_DELTA_DOWN)
     self.steerMax_timer = 0
     self.steerDeltaUp_timer = 0
     self.steerDeltaDown_timer = 0
@@ -185,7 +185,7 @@ class CarController():
     self.angle_steers = CS.out.steeringAngle
     self.angle_diff = abs(self.angle_steers_des) - abs(self.angle_steers)
 
-    if abs(self.outScale) >= 1 and CS.out.vEgo > 8: #out scale이 1이상이고 현재조향각과 필요조향각차이가 벌어지는 시점(5도이상, 최대50도)부터 보간법 사용, SR도 동일
+    if abs(self.outScale) >= 1 and CS.out.vEgo > 8: #out scale이 1이상이고 현재조향각과 필요조향각차이가 벌어지는 시점(0도이상, 최대30도)부터 보간법 사용, SR도 동일
       self.steerMax = interp(self.angle_diff, self.angle_differ_range, self.steerMax_range)
       self.steerDeltaUp = interp(self.angle_diff, self.angle_differ_range, self.steerDeltaUp_range)
       self.steerDeltaDown = interp(self.angle_diff, self.angle_differ_range, self.steerDeltaDown_range)
@@ -209,17 +209,17 @@ class CarController():
       if self.steerDeltaUp_timer > 50:
         self.steerDeltaUp -= 1
         self.steerDeltaUp_timer = 0
-        if self.steerDeltaUp < 3:
-          self.steerDeltaUp = 3
+        if self.steerDeltaUp < int(SteerLimitParams.STEER_DELTA_UP):
+          self.steerDeltaUp = int(SteerLimitParams.STEER_DELTA_UP)
       if self.steerDeltaDown_timer > 50:
         self.steerDeltaDown -= 1
         self.steerDeltaDown_timer = 0
-        if self.steerDeltaDown < 7:
-          self.steerDeltaDown = 7
+        if self.steerDeltaDown < int(SteerLimitParams.STEER_DELTA_DOWN):
+          self.steerDeltaDown = int(SteerLimitParams.STEER_DELTA_DOWN)
 
     param.STEER_MAX = min(param.STEER_MAX, int(self.steerMax))
-    param.STEER_DELTA_UP = min(param.STEER_DELTA_UP, int(self.steerDeltaUp))
-    param.STEER_DELTA_DOWN = min(param.STEER_DELTA_DOWN, int(self.steerDeltaDown))
+    param.STEER_DELTA_UP = max(param.STEER_DELTA_UP, int(self.steerDeltaUp))
+    param.STEER_DELTA_DOWN = max(param.STEER_DELTA_DOWN, int(self.steerDeltaDown))
 
 
     # Steering Torque
