@@ -562,9 +562,9 @@ static void ui_draw_debug(UIState *s)
     }
     nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
     ui_print(s, ui_viz_rx_center, ui_viz_ry+650, "커브");
-    if (scene.curvature >= 0.0001) {
+    if (scene.curvature >= 0.001) {
       ui_print(s, ui_viz_rx_center, ui_viz_ry+700, "↖%.4f", abs(scene.curvature));
-    } else if (scene.curvature <= -0.0001) {
+    } else if (scene.curvature <= -0.001) {
       ui_print(s, ui_viz_rx_center, ui_viz_ry+700, "%.4f↗", abs(scene.curvature));
     } else {
       ui_print(s, ui_viz_rx_center, ui_viz_ry+700, "%.4f", abs(scene.curvature));
