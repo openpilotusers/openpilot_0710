@@ -228,7 +228,7 @@ class Controls:
       self.events.add(EventName.radarCommIssue)
     elif not self.sm.all_alive_and_valid():
       self.events.add(EventName.commIssue)
-    if not self.sm['pathPlan'].mpcSolutionValid and not (EventName.laneChangeManual in self.events.names):
+    if not self.sm['pathPlan'].mpcSolutionValid and not (EventName.laneChangeManual in self.events.names) and CS.steeringAngle < 15:
       self.events.add(EventName.plannerError)
     if not self.sm['liveLocationKalman'].sensorsOK and not NOSENSOR:
       if self.sm.frame > 5 / DT_CTRL:  # Give locationd some time to receive all the inputs
