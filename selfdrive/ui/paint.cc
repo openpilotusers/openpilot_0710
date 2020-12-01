@@ -762,8 +762,8 @@ static void ui_draw_vision_speed(UIState *s) {
 
   NVGcolor val_color = COLOR_WHITE;
 
-  if( scene->brakePress ) val_color = COLOR_RED;
-  else if( scene->brakeLights ) val_color = nvgRGBA(201, 34, 49, 100);
+  if( s->scene.brakePress ) val_color = COLOR_RED;
+  else if( s->scene.brakeLights ) val_color = nvgRGBA(201, 34, 49, 100);
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
 
   snprintf(speed_str, sizeof(speed_str), "%d", (int)speed);
