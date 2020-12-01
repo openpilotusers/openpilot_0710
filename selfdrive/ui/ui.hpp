@@ -158,7 +158,7 @@ typedef struct UIScene {
   int cpuPerc;
   float steerRatio;
   float curvature;
-  float output_scale; 
+
   float cpu0Temp;
   int blindspot_blinkingrate = 120;
   int car_valid_status_changed = 0;
