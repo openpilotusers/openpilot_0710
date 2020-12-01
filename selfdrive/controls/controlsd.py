@@ -11,6 +11,7 @@ import cereal.messaging_arne as messaging_arne
 from selfdrive.config import Conversions as CV
 from selfdrive.boardd.boardd import can_list_to_can_capnp
 from selfdrive.car.car_helpers import get_car, get_startup_event, get_one_can
+from selfdrive.controls.lib.lane_planner import CAMERA_OFFSET, CAMERA_OFFSET_A
 from selfdrive.controls.lib.drive_helpers import update_v_cruise, initialize_v_cruise
 from selfdrive.controls.lib.longcontrol import LongControl, STARTING_TARGET_SPEED
 from selfdrive.controls.lib.latcontrol_pid import LatControlPID
@@ -29,10 +30,10 @@ import threading
 #from selfdrive.swaglog import cloudlog
 #from selfdrive.version import version, dirty
 
-LDW_MIN_SPEED = 12.5
+LDW_MIN_SPEED = 50 * CV.KPH_TO_MS
 LANE_DEPARTURE_THRESHOLD = 0.1
 STEER_ANGLE_SATURATION_TIMEOUT = 1.0 / DT_CTRL
-STEER_ANGLE_SATURATION_THRESHOLD = 2.75  # Degrees
+STEER_ANGLE_SATURATION_THRESHOLD = 45  # Degrees
 
 SIMULATION = "SIMULATION" in os.environ
 NOSENSOR = "NOSENSOR" in os.environ
@@ -119,12 +120,18 @@ class Controls:
     self.LoC = LongControl(self.CP, self.CI.compute_gb)
     self.VM = VehicleModel(self.CP)
 
+    self.lateral_control_method = 0
     if self.CP.lateralTuning.which() == 'pid':
       self.LaC = LatControlPID(self.CP)
+      self.lateral_control_method = 0
     elif self.CP.lateralTuning.which() == 'indi':
       self.LaC = LatControlINDI(self.CP)
+      self.lateral_control_method = 1
     elif self.CP.lateralTuning.which() == 'lqr':
       self.LaC = LatControlLQR(self.CP)
+      self.lateral_control_method = 2
+
+    self.long_plan_source = 0
 
     self.state = State.disabled
     self.enabled = False
@@ -164,14 +171,14 @@ class Controls:
 
     if not sounds_available:
       self.events.add(EventName.soundsUnavailable, static=True)
-    if internet_needed:
-      self.events.add(EventName.internetConnectivityNeeded, static=True)
+    #if internet_needed:
+    #  self.events.add(EventName.internetConnectivityNeeded, static=True)
     if community_feature_disallowed:
       self.events.add(EventName.communityFeatureDisallowed, static=True)
     if not car_recognized:
       self.events.add(EventName.carUnrecognized, static=True)
-    if hw_type == HwType.whitePanda:
-      self.events.add(EventName.whitePandaUnsupported, static=True)
+    #if hw_type == HwType.whitePanda:
+    #  self.events.add(EventName.whitePandaUnsupported, static=True)
 
     # controlsd is driven by can recv, expected at 100Hz
     self.rk = Ratekeeper(100, print_delay_threshold=None)
@@ -244,15 +251,15 @@ class Controls:
     elif not self.sm.all_alive_and_valid() and self.sm.frame > 5 / DT_CTRL:
       self.sm.print_dead_and_not_valid()
       self.events.add(EventName.commIssue)
-    if not self.sm['pathPlan'].mpcSolutionValid and self.sm.frame > 5 / DT_CTRL:
+    if not self.sm['pathPlan'].mpcSolutionValid and not (EventName.laneChangeManual in self.events.names) and CS.steeringAngle < 15:
       self.events.add(EventName.plannerError)
     if not self.sm['liveLocationKalman'].sensorsOK and not NOSENSOR:
       if self.sm.frame > 5 / DT_CTRL:  # Give locationd some time to receive all the inputs
         self.events.add(EventName.sensorDataInvalid)
-    if not self.sm['liveLocationKalman'].gpsOK and (self.distance_traveled > 1000):
-      # Not show in first 1 km to allow for driving out of garage. This event shows after 5 minutes
-      if not (SIMULATION or NOSENSOR):  # TODO: send GPS in carla
-        self.events.add(EventName.noGps)
+    #if not self.sm['liveLocationKalman'].gpsOK and (self.distance_traveled > 1000):
+    #  # Not show in first 1 km to allow for driving out of garage. This event shows after 5 minutes
+    #  if not (SIMULATION or NOSENSOR):  # TODO: send GPS in carla
+    #    self.events.add(EventName.noGps)
     if not self.sm['pathPlan'].paramsValid:
       self.events.add(EventName.vehicleModelInvalid)
     if not self.sm['liveLocationKalman'].posenetOK:
@@ -271,9 +278,9 @@ class Controls:
         self.events.add(EventName.modeldLagging)
 
     # Only allow engagement with brake pressed when stopped behind another stopped car
-    if CS.brakePressed and self.sm['plan'].vTargetFuture >= STARTING_TARGET_SPEED \
-      and self.CP.openpilotLongitudinalControl and CS.vEgo < 0.3:
-      self.events.add(EventName.noTarget)
+    #if CS.brakePressed and self.sm['plan'].vTargetFuture >= STARTING_TARGET_SPEED \
+    #  and self.CP.openpilotLongitudinalControl and CS.vEgo < 0.3:
+    #  self.events.add(EventName.noTarget)
 
   def data_sample(self):
     """Receive data from sockets and update carState"""
@@ -447,6 +454,9 @@ class Controls:
   def publish_logs(self, CS, start_time, actuators, v_acc, a_acc, lac_log, CS_arne182):
     """Send actuators and hud commands to the car, send controlsstate and MPC logging"""
 
+    self.log_alertTextMsg1 = trace1.global_alertTextMsg1
+    self.log_alertTextMsg2 = trace1.global_alertTextMsg2
+
     CC = car.CarControl.new_message()
     CC.enabled = self.enabled
     CC.actuators = actuators
@@ -533,11 +543,11 @@ class Controls:
 
     if not self.read_only:
       # send car controls over can
-      can_sends = self.CI.apply(CC)
+      can_sends = self.CI.apply(CC, self.sm)
       self.pm.send('sendcan', can_list_to_can_capnp(can_sends, msgtype='sendcan', valid=CS.canValid))
 
     force_decel = (self.sm['dMonitoringState'].awarenessStatus < 0.) or \
-                    (self.state == State.softDisabling)
+                  (self.state == State.softDisabling)
 
     steer_angle_rad = (CS.steeringAngle - self.sm['pathPlan'].angleOffset) * CV.DEG_TO_RAD
 
@@ -584,6 +594,23 @@ class Controls:
     controlsState.mapValid = self.sm['plan'].mapValid
     controlsState.forceDecel = bool(force_decel)
     controlsState.canErrorCounter = self.can_error_counter
+    controlsState.alertTextMsg1 = self.log_alertTextMsg1
+    controlsState.alertTextMsg2 = self.log_alertTextMsg2
+    controlsState.lateralControlMethod = self.lateral_control_method
+
+    if self.sm['plan'].longitudinalPlanSource == LongitudinalPlanSource.cruise:
+      self.long_plan_source = 1
+    elif self.sm['plan'].longitudinalPlanSource == LongitudinalPlanSource.mpc1:
+      self.long_plan_source = 2
+    elif self.sm['plan'].longitudinalPlanSource == LongitudinalPlanSource.mpc2:
+      self.long_plan_source = 3
+    elif self.sm['plan'].longitudinalPlanSource == LongitudinalPlanSource.mpc3:
+      self.long_plan_source = 4
+    elif self.sm['plan'].longitudinalPlanSource == LongitudinalPlanSource.model:
+      self.long_plan_source = 5
+    else:
+      self.long_plan_source = 0
+    controlsState.longPlanSource = self.long_plan_source
 
     if self.CP.lateralTuning.which() == 'pid':
       controlsState.lateralControlState.pidState = lac_log

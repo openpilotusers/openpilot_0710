@@ -3,31 +3,35 @@ from common.numpy_fast import clip, interp
 from selfdrive.controls.lib.pid import PIDController
 from common.travis_checker import travis
 from selfdrive.config import Conversions as CV
+from common.params import Params
+
+import common.log as trace1
+import common.CTime1000 as tm
 
 LongCtrlState = log.ControlsState.LongControlState
 
 STOPPING_EGO_SPEED = 0.5
 MIN_CAN_SPEED = 0.3  # TODO: parametrize this in car interface
 STOPPING_TARGET_SPEED = MIN_CAN_SPEED + 0.01
-STARTING_TARGET_SPEED = 0.5
-BRAKE_THRESHOLD_TO_PID = 0.2
+STARTING_TARGET_SPEED = 0.05
+BRAKE_THRESHOLD_TO_PID = 0.5
 
-STOPPING_BRAKE_RATE = 0.2  # brake_travel/s while trying to stop
-STARTING_BRAKE_RATE = 0.8  # brake_travel/s while releasing on restart
+STOPPING_BRAKE_RATE = 0.5  # brake_travel/s while trying to stop
+STARTING_BRAKE_RATE = 6  # brake_travel/s while releasing on restart
 BRAKE_STOPPING_TARGET = 0.5  # apply at least this amount of brake to maintain the vehicle stationary
 
 RATE = 100.0
 
 
 def long_control_state_trans(active, long_control_state, v_ego, v_target, v_pid,
-                             output_gb, brake_pressed, cruise_standstill, stop):
+                             output_gb, brake_pressed, cruise_standstill, stop, gas_pressed):
   """Update longitudinal control state machine"""
-  stopping_condition = stop or (v_ego < 2.0 and cruise_standstill) or \
+  stopping_condition = stop or (v_ego < 1.3 and cruise_standstill) or \
                        (v_ego < STOPPING_EGO_SPEED and \
                         ((v_pid < STOPPING_TARGET_SPEED and v_target < STOPPING_TARGET_SPEED) or
                         brake_pressed))
 
-  starting_condition = v_target > STARTING_TARGET_SPEED and not cruise_standstill
+  starting_condition = v_target > STARTING_TARGET_SPEED and not cruise_standstill and (int(Params().get('OpkrAutoResume')) == 1 or gas_pressed)
 
   if not active:
     long_control_state = LongCtrlState.off
@@ -142,7 +146,7 @@ class LongControl():
       stop = False
     self.long_control_state = long_control_state_trans(active, self.long_control_state, CS.vEgo,
                                                        v_target_future, self.v_pid, output_gb,
-                                                       CS.brakePressed, CS.cruiseState.standstill, stop)
+                                                       CS.brakePressed, CS.cruiseState.standstill, stop, CS.gasPressed)
 
 
     v_ego_pid = max(CS.vEgo, MIN_CAN_SPEED)  # Without this we get jumps, CAN bus reports 0 when speed < 0.3
@@ -162,17 +166,6 @@ class LongControl():
       # Freeze the integrator so we don't accelerate to compensate, and don't allow positive acceleration
       prevent_overshoot = not CP.stoppingControl and CS.vEgo < 1.5 and v_target_future < 0.7
       deadzone = interp(v_ego_pid, CP.longitudinalTuning.deadzoneBP, CP.longitudinalTuning.deadzoneV)
-      #if not self.had_lead and has_lead:
-      #  if enableGasInterceptor:
-      #    self.pid._k_p = ([0., 5., 35.], [1.2, 0.8, 0.5])
-      #    self.pid._k_i = ([0., 35.], [0.18, 0.12])
-      #  else:
-      #    self.pid._k_p = ([0., 5., 35.], [3.6, 2.4, 1.5])
-      #    self.pid._k_i = ([0., 35.], [0.54, 0.36])
-      #elif self.had_lead and not has_lead:
-      #  self.pid._k_p = (CP.longitudinalTuning.kpBP, CP.longitudinalTuning.kpV)
-      #  self.pid._k_i = (CP.longitudinalTuning.kiBP, CP.longitudinalTuning.kiV)
-      #self.had_lead = has_lead
       if longitudinalPlanSource == 'cruise':
         if decelForTurn and not self.lastdecelForTurn:
           self.lastdecelForTurn = True
@@ -229,5 +222,20 @@ class LongControl():
     self.last_output_gb = output_gb
     final_gas = clip(output_gb, 0., gas_max)
     final_brake = -clip(output_gb, -brake_max, 0.)
+
+
+    if self.long_control_state == LongCtrlState.stopping:
+      self.long_stat = "STP"
+    elif self.long_control_state == LongCtrlState.starting:
+      self.long_stat = "STR"
+    elif self.long_control_state == LongCtrlState.pid:
+      self.long_stat = "PID"
+    elif self.long_control_state == LongCtrlState.off:
+      self.long_stat = "OFF"
+    else:
+      self.long_stat = "---"
+
+    str_log3 = 'LS={:s}  GS={:01.2f}/{:01.2f}  BK={:01.2f}/{:01.2f}  GB={:+04.2f}  TG=V:{:05.2f}/F:{:05.2f}/A:{:+04.2f}  GS={}'.format(self.long_stat, final_gas, gas_max, abs(final_brake), abs(brake_max), output_gb, v_target, abs(v_target_future), a_target, CS.gasPressed)
+    trace1.printf2('{}'.format(str_log3))
 
     return final_gas, final_brake

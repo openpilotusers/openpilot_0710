@@ -303,12 +303,14 @@ struct ThermalData {
   memUsedPercent @19 :Int8;
   cpuPerc @20 :Int8;
 
-  ipAddr @31 :Text; #IP address for sidebar. @efini
   cpu @26 :List(Float32);
   gpu @27 :List(Float32);
   mem @28 :Float32;
   bat @29 :Float32;
   ambient @30 :Float32;
+
+  ipAddr @31 :Text;
+  cpu0 @32 :UInt16;
 
   enum ThermalStatus {
     green @0;   # all processes run
@@ -549,6 +551,11 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   decelForModel @54 :Bool;
   canErrorCounter @57 :UInt32;
+
+  alertTextMsg1  @58 :Text;
+  alertTextMsg2  @59 :Text;
+  lateralControlMethod  @60 :UInt8;
+  longPlanSource  @61 :UInt8;
 
   lateralControlState :union {
     indiState @52 :LateralINDIState;
@@ -828,6 +835,12 @@ struct Plan {
 
   processingDelay @29 :Float32;
 
+  dRel1 @32 :Float32;
+  yRel1 @33 :Float32;
+  vRel1 @34 :Float32;
+  dRel2 @35 :Float32;
+  yRel2 @36 :Float32;
+  vRel2 @37 :Float32;
 
   struct GpsTrajectory {
     x @0 :List(Float32);
@@ -866,6 +879,11 @@ struct PathPlan {
   desire @17 :Desire;
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
+  steerRatio @20 :Float32;
+  steerActuatorDelay @21 :Float32;
+  outputScale @22 :Float32;
+  steerRateCost @23 :Float32;
+  standstillElapsedTime @24 :Float32;
 
   enum Desire {
     none @0;

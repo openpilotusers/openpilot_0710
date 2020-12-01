@@ -1,6 +1,7 @@
 from common.numpy_fast import interp
 import numpy as np
 from cereal import log
+from common.params import Params
 from common.op_params import opParams
 
 op_params = opParams()
@@ -81,7 +82,7 @@ class LanePlanner():
       self.r_lane_change_prob = md.meta.desireState[log.PathPlan.Desire.laneChangeRight - 1]
 
   def update_d_poly(self, v_ego):
-    CAMERA_OFFSET = op_params.get('camera_offset')
+    CAMERA_OFFSET = int(Params().get('CameraOffsetAdj')) * 0.001
     # only offset left and right lane lines; offsetting p_poly does not make sense
     self.l_poly[3] += CAMERA_OFFSET
     self.r_poly[3] += CAMERA_OFFSET

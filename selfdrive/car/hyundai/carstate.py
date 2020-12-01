@@ -4,6 +4,7 @@ from selfdrive.car.hyundai.values import DBC, STEER_THRESHOLD, FEATURES, ELEC_VE
 from selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
 from selfdrive.config import Conversions as CV
+from common.params import Params
 
 GearShifter = car.CarState.GearShifter
 
@@ -22,10 +23,16 @@ class CarState(CarStateBase):
     self.radar_obj_valid = 0.
     self.vrelative = 0.
     self.prev_cruise_buttons = 0
+    self.prev_gap_button = 0
     self.cancel_button_count = 0
     self.cancel_button_timer = 0
     self.leftblinkerflashdebounce = 0
     self.rightblinkerflashdebounce = 0
+
+    self.brake_check = 0
+
+    self.steer_anglecorrection = int(Params().get('OpkrSteerAngleCorrection')) * 0.1
+    self.cruise_gap = int(Params().get('OpkrCruiseGapSet'))
 
   def update(self, cp, cp2, cp_cam):
     cp_mdps = cp2 if self.CP.mdpsHarness else cp
@@ -52,8 +59,9 @@ class CarState(CarStateBase):
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
 
     ret.standstill = ret.vEgoRaw < 0.1
+    ret.standStill = self.CP.standStill
 
-    ret.steeringAngle = cp_sas.vl["SAS11"]['SAS_Angle']
+    ret.steeringAngle = cp_sas.vl["SAS11"]['SAS_Angle'] - self.steer_anglecorrection
     ret.steeringRate = cp_sas.vl["SAS11"]['SAS_Speed']
     ret.yawRate = cp.vl["ESP12"]['YAW_RATE']
 
@@ -80,7 +88,8 @@ class CarState(CarStateBase):
 
     ret.steerWarning = cp_mdps.vl["MDPS12"]['CF_Mdps_ToiUnavail'] != 0
 
-    self.brakeHold = (cp.vl["ESP11"]['AVH_STAT'] == 1)
+    ret.brakeHold = cp.vl["ESP11"]['AVH_STAT'] == 1
+    self.brakeHold = ret.brakeHold
 
     self.cruise_main_button = cp.vl["CLU11"]["CF_Clu_CruiseSwMain"]
     self.cruise_buttons = cp.vl["CLU11"]["CF_Clu_CruiseSwState"]
@@ -98,10 +107,18 @@ class CarState(CarStateBase):
     else:
       self.cancel_button_count = 0
 
+    if self.prev_gap_button != self.cruise_buttons:
+      if self.cruise_buttons == 3:
+        self.cruise_gap -= 1
+      if self.cruise_gap < 1:
+        self.cruise_gap = 4
+      self.prev_gap_button = self.cruise_buttons
+
     # cruise state
     if not self.CP.enableCruise:
       if self.cruise_buttons == 1 or self.cruise_buttons == 2:
         self.allow_nonscc_available = True
+        self.brake_check = 0
       ret.cruiseState.available = self.allow_nonscc_available != 0
       ret.cruiseState.enabled = ret.cruiseState.available
     elif not self.CP.radarOffCan:
@@ -114,7 +131,7 @@ class CarState(CarStateBase):
     ret.cruiseState.standstill = cp_scc.vl["SCC11"]['SCCInfoDisplay'] == 4.
 
     self.is_set_speed_in_mph = cp.vl["CLU11"]["CF_Clu_SPEED_UNIT"]
-    if ret.cruiseState.enabled:
+    if ret.cruiseState.enabled and self.brake_check == 0:
       speed_conv = CV.MPH_TO_MS if self.is_set_speed_in_mph else CV.KPH_TO_MS
       if self.CP.radarOffCan:
         ret.cruiseState.speed = cp.vl["LVR12"]["CF_Lvr_CruiseSet"] * speed_conv
@@ -127,6 +144,8 @@ class CarState(CarStateBase):
     ret.brake = 0
     ret.brakePressed = cp.vl["TCS13"]['DriverBraking'] != 0
     self.brakeUnavailable = cp.vl["TCS13"]['ACCEnable'] == 3
+    if ret.brakePressed:
+      self.brake_check = 1
 
     # TODO: Check this
     ret.brakeLights = bool(cp.vl["TCS13"]['BrakeLight'] or ret.brakePressed)
@@ -145,6 +164,26 @@ class CarState(CarStateBase):
     ret.espDisabled = (cp.vl["TCS15"]['ESC_Off_Step'] != 0)
 
     self.parkBrake = (cp.vl["CGW1"]['CF_Gway_ParkBrakeSw'] != 0)
+
+    #TPMS
+    if cp.vl["TPMS11"]['PRESSURE_FL'] > 43:
+      ret.tpmsPressureFl = cp.vl["TPMS11"]['PRESSURE_FL'] * 5 * 0.145
+    else:
+      ret.tpmsPressureFl = cp.vl["TPMS11"]['PRESSURE_FL']
+    if cp.vl["TPMS11"]['PRESSURE_FR'] > 43:
+      ret.tpmsPressureFr = cp.vl["TPMS11"]['PRESSURE_FR'] * 5 * 0.145
+    else:
+      ret.tpmsPressureFr = cp.vl["TPMS11"]['PRESSURE_FR']
+    if cp.vl["TPMS11"]['PRESSURE_RL'] > 43:
+      ret.tpmsPressureRl = cp.vl["TPMS11"]['PRESSURE_RL'] * 5 * 0.145
+    else:
+      ret.tpmsPressureRl = cp.vl["TPMS11"]['PRESSURE_RL']
+    if cp.vl["TPMS11"]['PRESSURE_RR'] > 43:
+      ret.tpmsPressureRr = cp.vl["TPMS11"]['PRESSURE_RR'] * 5 * 0.145
+    else:
+      ret.tpmsPressureRr = cp.vl["TPMS11"]['PRESSURE_RR']
+
+    ret.cruiseGapSet = self.cruise_gap
 
     # TODO: refactor gear parsing in function
     # Gear Selection via Cluster - For those Kia/Hyundai which are not fully discovered, we can use the Cluster Indicator for Gear Selection,
@@ -284,6 +323,11 @@ class CarState(CarStateBase):
       ("AliveCounterACC", "SCC11", 0),
       ("CR_FCA_Alive", "FCA11", 0),
       ("Supplemental_Counter", "FCA11", 0),
+
+      ("PRESSURE_FL", "TPMS11", 0),
+      ("PRESSURE_FR", "TPMS11", 0),
+      ("PRESSURE_RL", "TPMS11", 0),
+      ("PRESSURE_RR", "TPMS11", 0),
     ]
 
     checks = [

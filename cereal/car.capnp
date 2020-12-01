@@ -118,6 +118,16 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     canErrorPersistentDEPRECATED @83;
     focusRecoverActiveDEPRECATED @86;
     neosUpdateRequiredDEPRECATED @88;
+
+    laneChangeManual @95;
+    emgButtonManual @96;
+    driverSteering @97;
+    modeChangeOpenpilot @98;
+    modeChangeDistcurv @99;
+    modeChangeDistance @100;
+    modeChangeOneway @101;
+    needBrake @102;
+    standStill @103;
   }
 }
 
@@ -144,6 +154,7 @@ struct CarState {
   brake @5 :Float32;      # this is user pedal only
   brakePressed @6 :Bool;  # this is user pedal only
   brakeLights @19 :Bool;
+  brakeHold @42 :Bool;    # AutoHold
 
   # steering wheel
   steeringAngle @7 :Float32;       # deg
@@ -185,6 +196,17 @@ struct CarState {
   leftBlindspot @33 :Bool; # Is there something blocking the left lane change
   rightBlindspot @34 :Bool; # Is there something blocking the right lane change
 
+  # tpms 
+  tpmsPressureFl @37 :Float32;
+  tpmsPressureFr @38 :Float32;
+  tpmsPressureRl @39 :Float32;
+  tpmsPressureRr @40 :Float32;
+
+  radarDistance @41 :Float32;
+  
+  cruiseGapSet @43 :UInt8;
+  standStill @44 :Bool;
+
   struct WheelSpeeds {
     # optional wheel speeds
     fl @0 :Float32;
@@ -200,6 +222,7 @@ struct CarState {
     speedOffset @3 :Float32;
     standstill @4 :Bool;
     nonAdaptive @5 :Bool;
+    modeSel @6 :Int16;
   }
 
   enum GearShifter {
@@ -343,6 +366,18 @@ struct CarControl {
       chimeWarningRepeat @6;
       chimePrompt @7;
       chimeWarning2Repeat @8;
+      chimeReady @9;
+      chimeDoorOpen @10;
+      chimeGearDrive @11;
+      chimeLaneChange @12;
+      chimeLaneDeparture @13;
+      chimeRoadWarning @14;
+      chimeSeatBelt @15;
+      chimeViewUncertain @16;
+      chimeModeOpenpilot @17;
+      chimeModeDistcurv @18;
+      chimeModeDistance @19;
+      chimeModeOneway @20;
     }
   }
 }
@@ -424,6 +459,7 @@ struct CarParams {
   lvrAvailable @58: Bool;
   evgearAvailable @59: Bool;
   emsAvailable @60: Bool;
+  standStill @61: Bool;
 
   struct LateralParams {
     torqueBP @0 :List(Int32);
