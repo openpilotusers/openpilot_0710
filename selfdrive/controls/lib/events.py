@@ -607,10 +607,6 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
     ET.PERMANENT: NormalPermanentAlert("팬 오작동", "서비스팀에 문의하세요"),
   },
 
-  EventName.cameraMalfunction: {
-    ET.PERMANENT: NormalPermanentAlert("카메라 오작동", "서비스팀에 문의하세요"),
-  },
-
   EventName.modeChangeOpenpilot: {
     ET.WARNING: Alert(
       "오픈파일럿 모드",
@@ -811,8 +807,12 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   },
 
   EventName.modeldLagging: {
-    ET.SOFT_DISABLE: SoftDisableAlert("주행 모델 지연"),
-    ET.NO_ENTRY : NoEntryAlert("주행 모델 지연"),
+    ET.WARNING: Alert(
+      "모델 지연",
+      "장치 온도를 낮추세요!",
+      AlertStatus.normal, AlertSize.mid,
+      Priority.MID, VisualAlert.steerRequired, AudibleAlert.none, 0., 0., .2),
+    ET.NO_ENTRY : NoEntryAlert("주행모델 지연"),
   },
 
   EventName.posenetInvalid: {
@@ -886,7 +886,11 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   },
 
   EventName.plannerError: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Planner Solution Error"),
+    ET.WARNING: Alert(
+      "Planner Solution Error",
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOWEST, VisualAlert.steerRequired, AudibleAlert.none, .0, .0, .1),
     ET.NO_ENTRY: NoEntryAlert("Planner Solution Error"),
   },
 
@@ -1053,7 +1057,7 @@ EVENTSARNE182 = {
 
   'modelLongAlert': {
     ET.PERMANENT: Alert(
-      "오파 모델LONG ",
+      "모델 LONG ",
       "사용에 주의하세요",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOW, VisualAlert.none, AudibleAlert.chimeWarning1, .4, 0., 1.5),
