@@ -42,8 +42,7 @@ const mat3 intrinsic_matrix = (mat3){{
 }};
 #endif
 
-static void ui_print(UIState *s, int x, int y,  const char* fmt, ... )
-{
+static void ui_print(UIState *s, int x, int y,  const char* fmt, ... ) {
   char* msg_buf = NULL;
   va_list args;
   va_start(args, fmt);
@@ -366,27 +365,23 @@ static void ui_draw_vision_lanes(UIState *s) {
   NVGcolor colorLeft = nvgRGBAf(1.0, 1.0, 1.0, left_lane );
   NVGcolor colorRight = nvgRGBAf(1.0, 1.0, 1.0, right_lane );
 
-  if( scene->leftBlinker )
-  {
-    if( scene->leftblindspot )
+  if( scene->leftBlinker ) {
+    if( scene->leftblindspot ) {
       colorLeft  = nvgRGBAf(1.0, 0.2, 0.2, 1.0 );
-    else
-      colorLeft  = nvgRGBAf(0.2, 0.2, 1.0, 1.0 );    
-  }
-  else if( scene->leftblindspot )
-  {
+    } else {
+      colorLeft  = nvgRGBAf(0.2, 0.2, 1.0, 1.0 ); 
+    }   
+  } else if( scene->leftblindspot ) {
     colorLeft  = nvgRGBAf(1.0, 0.5, 0.5, left_lane );
   }
     
-  if( scene->rightBlinker )
-  {
-    if( scene->rightblindspot )
-        colorRight  = nvgRGBAf(1.0, 0.2, 0.2, 1.0 );
-    else
-        colorRight  = nvgRGBAf(0.2, 0.2, 1.0, 1.0 ); 
-  }
-  else if( scene->rightblindspot )
-  {
+  if( scene->rightBlinker ) {
+    if( scene->rightblindspot ) {
+      colorRight  = nvgRGBAf(1.0, 0.2, 0.2, 1.0 );
+    } else {
+      colorRight  = nvgRGBAf(0.2, 0.2, 1.0, 1.0 );
+    }
+  } else if( scene->rightblindspot ) {
     colorRight  = nvgRGBAf(1.0, 0.5, 0.5, right_lane );
   }
   // Draw left lane edge
@@ -435,6 +430,7 @@ static void ui_draw_world(UIState *s) {
     if (scene->lead_data[1].getStatus() && (std::abs(scene->lead_data[0].getDRel() - scene->lead_data[1].getDRel()) > 3.0)) {
       draw_lead(s, scene->lead_data[1]);
     }
+  }
   nvgRestore(s->vg);
 }
 
@@ -1229,8 +1225,7 @@ static void bb_ui_draw_measures_right(UIState *s, int bb_x, int bb_y, int bb_w )
 
 //BB END: functions added for the display of various items
 
-static void bb_ui_draw_UI(UIState *s)
-{
+static void bb_ui_draw_UI(UIState *s) {
   const UIScene *scene = &s->scene;
   const int bb_dml_w = 180;
   const int bb_dml_x = (scene->viz_rect.x + (bdr_s * 2));
