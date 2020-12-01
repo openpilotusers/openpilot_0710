@@ -658,7 +658,7 @@ static void ui_draw_vision_maxspeed(UIState *s) {
 
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
   const int text_x = viz_maxspeed_x + (viz_maxspeed_xo / 2) + (viz_maxspeed_w / 2);
-  ui_draw_text(s->vg, text_x, 148, "설정속도", 26 * 2.2, COLOR_WHITE_ALPHA(is_cruise_set ? 200 : 100), s->font_sans_regular);
+  ui_draw_text(s->vg, text_x, 142, "설정속도", 26 * 2.2, COLOR_WHITE_ALPHA(is_cruise_set ? 200 : 100), s->font_sans_regular);
 
   if (is_cruise_set && s->scene.controls_state.getEnabled()) {
     snprintf(maxspeed_str, sizeof(maxspeed_str), "%d", maxspeed_calc);
@@ -712,15 +712,15 @@ static void ui_draw_vision_speedlimit(UIState *s) {
   // Draw "Speed Limit" Text
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
   color = is_speedlim_valid && s->is_ego_over_limit ? COLOR_WHITE : COLOR_BLACK;
-  ui_draw_text(s->vg, text_x, text_y, "제한속도", 26 * 2.2, color, s->font_sans_semibold);
+  ui_draw_text(s->vg, text_x, 142, "제한속도", 26 * 2.2, color, s->font_sans_semibold);
   
   // Draw Speed Text
   color = s->is_ego_over_limit ? COLOR_WHITE : COLOR_BLACK;
   if (is_speedlim_valid) {
     snprintf(speedlim_str, sizeof(speedlim_str), "%d", speedlim_calc);
-    ui_draw_text(s->vg, text_x, 148, speedlim_str, 48*2.3, color, s->font_sans_bold);
+    ui_draw_text(s->vg, text_x, 242, speedlim_str, 48*2.3, color, s->font_sans_bold);
   } else {
-    ui_draw_text(s->vg, text_x, 148, "-", 42*2.3, color, s->font_sans_semibold);
+    ui_draw_text(s->vg, text_x, 242, "-", 42*2.3, color, s->font_sans_semibold);
   }
 }
 
@@ -885,9 +885,9 @@ static void ui_draw_driver_view(UIState *s) {
 
 static void ui_draw_ml_button(UIState *s) {
   int btn_w = 400;
-  int btn_h = 100;
+  int btn_h = 95;
   int x = 1920 / 2;
-  int y = 1000;
+  int y = 990;
   int btn_x = x - btn_w / 2;
   int btn_y = y - btn_h / 2;
 
@@ -908,7 +908,7 @@ static void ui_draw_ml_button(UIState *s) {
 
   nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
   nvgFontSize(s->vg, 60*0.8);
-  nvgText(s->vg, x, y + btn_h / 8, "MODEL LONG", NULL);
+  nvgText(s->vg, x, (y + btn_h / 8)+5, "MODEL LONG", NULL);
 }
 
 
