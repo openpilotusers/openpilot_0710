@@ -58,8 +58,10 @@ typedef struct Rect {
 const int sbr_w = 300;
 const int bdr_s = 30;
 const int bdr_is = 30;
+const int vwp_h = 1080;
 const int header_h = 420;
 const int footer_h = 280;
+const int footer_y = vwp_h-bdr_s-footer_h;
 const Rect settings_btn = {50, 35, 200, 117};
 const Rect home_btn = {60, 1080 - 180 - 40, 180, 180};
 
@@ -140,7 +142,6 @@ typedef struct UIScene {
   std::string alert_type;
   cereal::ControlsState::AlertSize alert_size;
   float awareness_status;
-  float face_prob;
 
   bool  brakePress;
   float angleSteers;
@@ -189,6 +190,34 @@ typedef struct UIScene {
   float right_lane_points[MODEL_PATH_DISTANCE];
   cereal::CarState::GearShifter getGearShifter;
   cereal::PathPlan::Reader path_plan;
+
+  struct _LiveParams
+  {
+    float gyroBias;
+    float angleOffset;
+    float angleOffsetAverage;
+    float stiffnessFactor;
+    float steerRatio;
+    float yawRate;
+    float posenetSpeed;
+  } liveParams;
+
+  struct _PathPlan
+  {
+    float laneWidth;
+    float steerRatio;
+    float steerActuatorDelay;
+    float steerRateCost;
+
+    float cProb;
+    float lProb;
+    float rProb;
+
+    float angleOffset;
+
+    float lPoly;
+    float rPoly;
+  } pathPlan;
 } UIScene;
 
 typedef struct {
@@ -227,9 +256,10 @@ typedef struct UIState {
   int img_battery;
   int img_battery_charging;
   int img_network[6];
-  int img_brake;
   int img_map;
   int img_speed;
+  int img_car_left;
+  int img_car_right;
 
   SubMaster *sm;
   PubMaster *pm;
@@ -256,16 +286,26 @@ typedef struct UIState {
 
   // device state
   bool awake;
+  int awake_timeout;
   float light_sensor, accel_sensor, gyro_sensor;
 
   bool started;
   bool ignition;
   bool is_metric;
   bool longitudinal_control;
-  bool ui_debug;
   bool limit_set_speed;
   bool is_ego_over_limit;
   float speed_lim_off;
+  
+  int is_OpenpilotViewEnabled;
+  int lateral_control;
+
+  int nOpkrAutoScreenOff;
+  int nOpkrUIBrightness;
+  int nOpkrUIVolumeBoost;
+  int nDebugUi1;
+  int nDebugUi2;
+  int nOpkrBlindSpotDetect;
   uint64_t last_athena_ping;
   uint64_t started_frame;
 
