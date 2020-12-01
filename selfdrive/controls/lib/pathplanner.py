@@ -59,6 +59,21 @@ class PathPlanner():
     self.setup_mpc()
     self.solution_invalid_cnt = 0
     self.lane_change_enabled = Params().get('LaneChangeEnabled') == b'1'
+
+    if int(Params().get('OpkrAutoLaneChangeDelay')) == 0:
+      self.lane_change_auto_delay = 0.0
+    elif int(Params().get('OpkrAutoLaneChangeDelay')) == 1:
+      self.lane_change_auto_delay = 0.2
+    elif int(Params().get('OpkrAutoLaneChangeDelay')) == 2:
+      self.lane_change_auto_delay = 0.5
+    elif int(Params().get('OpkrAutoLaneChangeDelay')) == 3:
+      self.lane_change_auto_delay = 1.0
+    elif int(Params().get('OpkrAutoLaneChangeDelay')) == 4:
+      self.lane_change_auto_delay = 1.5
+    elif int(Params().get('OpkrAutoLaneChangeDelay')) == 5:
+      self.lane_change_auto_delay = 2.0
+
+    self.lane_change_wait_timer = 0.0
     self.lane_change_state = LaneChangeState.off
     self.lane_change_direction = LaneChangeDirection.none
     self.lane_change_timer = 0.0
@@ -88,6 +103,8 @@ class PathPlanner():
     self.steer_actuator_delay_vel = [3, 13]
     self.new_steer_actuator_delay = CP.steerActuatorDelay
 
+    self.angle_offset_select = int(Params().get('OpkrAngleOffsetSelect'))
+
     self.standstill_elapsed_time = 0.0
 
   def setup_mpc(self):
@@ -109,7 +126,7 @@ class PathPlanner():
   def update(self, sm, pm, CP, VM):
     if not travis:
       self.arne_sm.update(0)
-      gas_button_status = self.arne_sm['arne182Status'].gasbuttonstatus
+      gas_button_status = int(Params().get('OpkrAccMode'))
       if gas_button_status == 1:
         self.blindspotwait = 10
       elif gas_button_status == 2:
@@ -179,14 +196,15 @@ class PathPlanner():
 
     # Lane change logic
     one_blinker = sm['carState'].leftBlinker != sm['carState'].rightBlinker
-    below_lane_change_speed = v_ego < self.alca_min_speed * CV.KPH_TO_MS
+    below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
 
     if sm['carState'].leftBlinker:
       self.lane_change_direction = LaneChangeDirection.left
     elif sm['carState'].rightBlinker:
       self.lane_change_direction = LaneChangeDirection.right
 
-    if (not active) or (self.lane_change_timer > LANE_CHANGE_TIME_MAX) or (not one_blinker) or (not self.lane_change_enabled) or (sm['carState'].steeringPressed and ((sm['carState'].steeringTorque > 0 and self.lane_change_direction == LaneChangeDirection.right) or (sm['carState'].steeringTorque < 0 and self.lane_change_direction == LaneChangeDirection.left))):
+    #if (not active) or (self.lane_change_timer > LANE_CHANGE_TIME_MAX) or (not one_blinker) or (not self.lane_change_enabled) or (sm['carState'].steeringPressed and ((sm['carState'].steeringTorque > 0 and self.lane_change_direction == LaneChangeDirection.right) or (sm['carState'].steeringTorque < 0 and self.lane_change_direction == LaneChangeDirection.left))):
+     if (not active) or (self.lane_change_timer > LANE_CHANGE_TIME_MAX) or (not self.lane_change_enabled) or ( abs(output_scale) >= 0.9 and self.lane_change_timer > 1):
       self.lane_change_state = LaneChangeState.off
       self.lane_change_direction = LaneChangeDirection.none
     else:
@@ -208,14 +226,17 @@ class PathPlanner():
         self.blindspotTrueCounterright = 0
         self.lane_change_state = LaneChangeState.preLaneChange
         self.lane_change_ll_prob = 1.0
+        self.lane_change_wait_timer = 0
 
       # pre
       elif self.lane_change_state == LaneChangeState.preLaneChange:
+        self.lane_change_wait_timer += DT_MDL
         if not one_blinker or below_lane_change_speed:
           self.lane_change_state = LaneChangeState.off
           self.blindspotTrueCounterleft = 0
           self.blindspotTrueCounterright = 0
-        elif torque_applied:
+        #elif torque_applied:
+        elif not blindspot_detected and (torque_applied or (self.lane_change_auto_delay and self.lane_change_wait_timer > self.lane_change_auto_delay)):
           self.lane_change_state = LaneChangeState.laneChangeStarting
 
       # starting
@@ -309,7 +330,10 @@ class PathPlanner():
 
     plan_send.pathPlan.angleSteers = float(self.angle_steers_des_mpc)
     plan_send.pathPlan.rateSteers = float(rate_desired)
-    plan_send.pathPlan.angleOffset = float(sm['liveParameters'].angleOffsetAverage)
+    if self.angle_offset_select == 0:
+      plan_send.pathPlan.angleOffset = float(sm['liveParameters'].angleOffsetAverage)
+    else:
+      plan_send.pathPlan.angleOffset = float(sm['liveParameters'].angleOffset)
     plan_send.pathPlan.mpcSolutionValid = bool(plan_solution_valid)
     plan_send.pathPlan.paramsValid = bool(sm['liveParameters'].valid)
 

@@ -82,7 +82,7 @@ class LongControl():
 
   def dynamic_gas(self, v_ego, gas_interceptor, gas_button_status):
     dynamic = False
-    if gas_interceptor:
+    if gas_interceptor: # gas_interceptor is not used for hkg
       if gas_button_status == 0:
         dynamic = True
         x = [0.0, 1.4082, 2.8031, 4.2266, 5.3827, 6.1656, 7.2478, 8.2831, 10.2447, 12.964, 15.423, 18.119, 20.117, 24.4661, 29.0581, 32.7101, 35.7633]
@@ -92,13 +92,13 @@ class LongControl():
       elif gas_button_status == 2:
         y = [0.15, 0.1548, 0.1646, 0.179, 0.1976, 0.2143, 0.2481, 0.2689, 0.2873, 0.3011, 0.3162, 0.3349, 0.3508, 0.3991, 0.4647, 0.529, 0.5981]
     else:
-      if gas_button_status == 0:
+      if gas_button_status == 0: # DYNAMIC
         dynamic = True
         x = [0.0, 1.4082, 2.8031, 4.2266, 5.3827, 6.1656, 7.2478, 8.2831, 10.2447, 12.964, 15.423, 18.119, 20.117, 24.4661, 29.0581, 32.7101, 35.7633]
         y = [0.3, 0.304, 0.315, 0.342, 0.365, 0.386, 0.429, 0.454, 0.472, 0.48, 0.489, 0.421, 0.432, 0.480, 0.55, 0.621, 0.7]
-      elif gas_button_status == 1:
+      elif gas_button_status == 1: # SPORT
         y = [0.5, 0.95, 0.99]
-      elif gas_button_status == 2:
+      elif gas_button_status == 2: # ECO
         y = [0.25, 0.2, 0.2]
 
     if not dynamic:

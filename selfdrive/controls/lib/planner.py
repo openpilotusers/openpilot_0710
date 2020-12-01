@@ -194,7 +194,7 @@ class Planner():
         self.last_time = 0
       self.last_time = self.last_time + 1
 
-    gas_button_status = arne_sm['arne182Status'].gasbuttonstatus
+    gas_button_status = int(self.params.get('OpkrAccMode'))
     if eco_mode and gas_button_status == 0:
       gas_button_status = 2
     v_ego = sm['carState'].vEgo
@@ -296,7 +296,7 @@ class Planner():
 
     # Calculate speed for normal cruise control
     if enabled and not self.first_loop and not sm['carState'].brakePressed and not sm['carState'].gasPressed:
-      accel_limits = [float(x) for x in calc_cruise_accel_limits(v_ego, following and (self.longitudinalPlanSource == 'mpc1' or self.longitudinalPlanSource == 'mpc2'), gas_button_status)]
+      accel_limits = [float(x) for x in calc_cruise_accel_limits(v_ego, following and (self.longitudinalPlanSource == 'mpc1' or self.longitudinalPlanSource == 'mpc2'), int(self.params.get('OpkrAccMode')))]
       jerk_limits = [min(-0.1, accel_limits[0]), max(0.1, accel_limits[1])]  # TODO: make a separate lookup for jerk tuning
       accel_limits_turns = limit_accel_in_turns(v_ego, steering_angle, accel_limits, self.CP, angle_later)
 

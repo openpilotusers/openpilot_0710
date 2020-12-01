@@ -16,6 +16,7 @@
 #include "paint.hpp"
 #include "android/sl_sound.hpp"
 #include "dashcam.h"
+#include "latcontrol.h"
 
 volatile sig_atomic_t do_exit = 0;
 static void set_do_exit(int sig) {
@@ -28,6 +29,17 @@ static void ui_set_brightness(UIState *s, int brightness) {
     if (set_brightness(brightness)) {
       last_brightness = brightness;
     }
+  }
+}
+
+int event_processing_enabled = -1;
+static void enable_event_processing(bool yes) {
+  if (event_processing_enabled != 1 && yes) {
+    system("service call window 18 i32 1");  // enable event processing
+    event_processing_enabled = 1;
+  } else if (event_processing_enabled != 0 && !yes) {
+    system("service call window 18 i32 0");  // disable event processing
+    event_processing_enabled = 0;
   }
 }
 
@@ -54,51 +66,24 @@ static bool handle_ml_touch(UIState *s, int touch_x, int touch_y) {
   return false;
 }
 
-static bool handle_SA_touched(UIState *s, int touch_x, int touch_y) {
-  if (s->active_app == cereal::UiLayoutState::App::NONE) {  // if onroad (not settings or home)
-    if ((s->awake && s->vision_connected && s->status != STATUS_OFFROAD) || s->ui_debug) {  // if car started or debug mode
-      if (handle_ml_touch(s, touch_x, touch_y)) {
-        s->scene.uilayout_sidebarcollapsed = true;  // collapse sidebar when tapping any SA button
-        return true;  // only allow one button to be pressed at a time
-      }
-    }
+static void set_awake(UIState *s, bool awake) {
+  if (awake) {
+    // 30 second timeout
+    s->awake_timeout = (s->nOpkrAutoScreenOff && s->started)? s->nOpkrAutoScreenOff*60*UI_FREQ : 30*UI_FREQ;
   }
-  return false;
-}
+  if (s->awake != awake) {
+    s->awake = awake;
 
-static void handle_display_state(UIState *s, bool user_input) {
-
-  static int awake_timeout = 0;
-  awake_timeout = std::max(awake_timeout-1, 0);
-
-  // tap detection while display is off
-  const float accel_samples = 5*UI_FREQ;
-  static float accel_prev, gyro_prev = 0;
-
-  bool accel_trigger = abs(s->accel_sensor - accel_prev) > 0.2;
-  bool gyro_trigger = abs(s->gyro_sensor - gyro_prev) > 0.15;
-  user_input = user_input || (accel_trigger && gyro_trigger);
-  gyro_prev = s->gyro_sensor;
-  accel_prev = (accel_prev*(accel_samples - 1) + s->accel_sensor) / accel_samples;
-
-  // determine desired state
-  bool should_wake = s->awake;
-  if (user_input || s->ignition || s->started) {
-    should_wake = true;
-    awake_timeout = 30*UI_FREQ;
-  } else if (awake_timeout == 0){
-    should_wake = false;
-  }
-
-  // handle state transition
-  if (s->awake != should_wake) {
-    s->awake = should_wake;
-    int display_mode = s->awake ? HWC_POWER_MODE_NORMAL : HWC_POWER_MODE_OFF;
-    LOGW("setting display mode %d", display_mode);
-    framebuffer_set_power(s->fb, display_mode);
-
-    if (s->awake) {
-      system("service call window 18 i32 1");
+    // TODO: replace command_awake and command_sleep with direct calls to android
+    if (awake) {
+      LOGW("awake normal");
+      framebuffer_set_power(s->fb, HWC_POWER_MODE_NORMAL);
+      enable_event_processing(true);
+    } else {
+      LOGW("awake off");
+      ui_set_brightness(s, 0);
+      //framebuffer_set_power(s->fb, HWC_POWER_MODE_OFF);
+      enable_event_processing(false);
     }
   }
 }
@@ -160,11 +145,13 @@ int main(int argc, char* argv[]) {
   sa_init(s, true);
   s->sound = &sound;
 
-  TouchState touch = {0};
-  touch_init(&touch);
-  handle_display_state(s, true);
+  set_awake(s, true);
+  enable_event_processing(true);
 
   PubMaster *pm = new PubMaster({"offroadLayout"});
+
+  TouchState touch = {0};
+  touch_init(&touch);
 
   // light sensor scaling and volume params
   const bool LEON = util::read_file("/proc/cmdline").find("letv") != std::string::npos;
@@ -184,9 +171,13 @@ int main(int argc, char* argv[]) {
   const int MAX_VOLUME = LEON ? 15 : 12;
   s->sound->setVolume(MIN_VOLUME);
 
+  if (s->nOpkrAutoScreenOff && !s->awake) {
+    set_awake(s, true);
+  }
+
   bool last_started = s->started;
   while (!do_exit) {
-    if (!s->started) {
+    if (!s->started || !s->vision_connected) {
       usleep(50 * 1000);
     }
     if (s->started && !last_started) {
@@ -197,34 +188,68 @@ int main(int argc, char* argv[]) {
 
     ui_update(s);
 
+    // manage wakefulness
+    if (s->started || s->ignition) {
+      if (s->nOpkrAutoScreenOff) {
+        // turn on screen when alert is here.
+        if (s->awake_timeout == 0 && (s->status == STATUS_DISENGAGED || s->status == STATUS_ALERT || s->status == STATUS_WARNING || (s->scene.alert_text1 != ""))) {
+          set_awake(s, true);
+        }
+      } else {
+        set_awake(s, true);
+      }
+    }
+
+    if (s->awake_timeout > 0) {
+      s->awake_timeout--;
+    } else {
+      set_awake(s, false);
+    }
+
     // poll for touch events
     int touch_x = -1, touch_y = -1;
     int touched = touch_poll(&touch, &touch_x, &touch_y, 0);
+
+    if ((s->awake) && (dashcam(s, touch_x, touch_y))) {
+      touched = 0;
+    }
+
+    if ((s->awake) && (latcontrol(s, touch_x, touch_y))) {
+      touched = 0;
+    }
+
     if (touched == 1) {
-      if (s->ui_debug) { printf("touched x: %d, y: %d\n", touch_x, touch_y); }
-      handle_sidebar_touch(s, touch_x, touch_y);
-      if (!handle_SA_touched(s, touch_x, touch_y)) {  // if SA button not touched
+      if (s->nOpkrAutoScreenOff && s->awake_timeout == 0) {
+        set_awake(s, true);
+      } else {
+        set_awake(s, true);
+        handle_sidebar_touch(s, touch_x, touch_y);
         handle_vision_touch(s, touch_x, touch_y);
       }
     }
 
-    if (s->awake) {
-      dashcam(s, touch_x, touch_y);
-    }
-
     // Don't waste resources on drawing in case screen is off
-    handle_display_state(s, touched == 1);
     if (!s->awake) {
       continue;
     }
 
     // up one notch every 5 m/s
-    s->sound->setVolume(fmin(MAX_VOLUME, MIN_VOLUME + s->scene.controls_state.getVEgo() / 5));
+    float min = MIN_VOLUME + s->scene.controls_state.getVEgo() / 5;
+    if (s->nOpkrUIVolumeBoost > 0 || s->nOpkrUIVolumeBoost < 0) {
+      min = min * (1 + s->nOpkrUIVolumeBoost * 0.01);
+    }
+    s->sound->setVolume(fmin(MAX_VOLUME, min)); // up one notch every 5 m/s
 
     // set brightness
-    float clipped_brightness = fmin(512, (s->light_sensor*brightness_m) + brightness_b);
-    smooth_brightness = fmin(255, clipped_brightness * 0.01 + smooth_brightness * 0.99);
+    if (s->nOpkrUIBrightness == 0) {
+    float clipped_brightness = (s->light_sensor*brightness_m) + brightness_b;
+    if (clipped_brightness > 512) clipped_brightness = 512;
+    smooth_brightness = clipped_brightness * 0.01 + smooth_brightness * 0.99;
+    if (smooth_brightness > 255) smooth_brightness = 255;
     ui_set_brightness(s, (int)smooth_brightness);
+    } else {
+      ui_set_brightness(s, (int)(255*s->nOpkrUIBrightness*0.01));
+    }
 
     update_offroad_layout_state(s, pm);
 
@@ -237,7 +262,7 @@ int main(int argc, char* argv[]) {
     framebuffer_swap(s->fb);
   }
 
-  handle_display_state(s, true);
+  set_awake(s, true);
   delete s->sm;
   delete pm;
   return 0;

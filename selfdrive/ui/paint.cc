@@ -42,6 +42,15 @@ const mat3 intrinsic_matrix = (mat3){{
 }};
 #endif
 
+static void ui_print(UIState *s, int x, int y,  const char* fmt, ... )
+{
+  char* msg_buf = NULL;
+  va_list args;
+  va_start(args, fmt);
+  vasprintf( &msg_buf, fmt, args);
+  va_end(args);
+  nvgText(s->vg, x, y, msg_buf, NULL);
+}
 // Projects a point in car to space to the corresponding point in full frame
 // image space.
 vec3 car_space_to_full_frame(const UIState *s, vec4 car_space_projective) {

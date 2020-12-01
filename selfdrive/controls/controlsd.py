@@ -419,10 +419,11 @@ class Controls:
 
     a_acc_sol = plan.aStart + (dt / LON_MPC_STEP) * (plan.aTarget - plan.aStart)
     v_acc_sol = plan.vStart + dt * (a_acc_sol + plan.aStart) / 2.0
-
+    
+    params = Params()
     # Gas/Brake PID loop
-    if self.arne_sm.updated['arne182Status']:
-      gas_button_status = self.arne_sm['arne182Status'].gasbuttonstatus
+    if int(params.get('OpkrAccMode')):
+      gas_button_status = int(params.get('OpkrAccMode'))
     else:
       gas_button_status = 0
 

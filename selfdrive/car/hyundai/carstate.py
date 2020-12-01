@@ -1,17 +1,32 @@
 import copy
+import numpy as np
+from common.numpy_fast import interp
+import math
 from cereal import car
+from common.numpy_fast import mean
+import cereal.messaging_arne as messaging_arne
+import cereal.messaging as messaging
 from selfdrive.car.hyundai.values import DBC, STEER_THRESHOLD, FEATURES, ELEC_VEH, HYBRID_VEH
 from selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
 from selfdrive.config import Conversions as CV
+from common.travis_checker import travis
 from common.params import Params
+from common.op_params import opParams
 
 GearShifter = car.CarState.GearShifter
-
+op_params = opParams()
+rsa_max_speed = op_params.get('rsa_max_speed')
+limit_rsa = op_params.get('limit_rsa')
 
 class CarState(CarStateBase):
   def __init__(self, CP):
     super().__init__(CP)
+    self.engaged_when_gas_was_pressed = False
+    self.gas_pressed = False
+
+    self.smartspeed = 0
+    self.read_distance_lines = 0
 
     #Auto detection for setup
     self.cruise_main_button = 0
@@ -33,6 +48,11 @@ class CarState(CarStateBase):
 
     self.steer_anglecorrection = int(Params().get('OpkrSteerAngleCorrection')) * 0.1
     self.cruise_gap = int(Params().get('OpkrCruiseGapSet'))
+
+    if not travis:
+      self.arne_pm = messaging_arne.PubMaster(['liveTrafficData', 'arne182Status', 'dynamicFollowButton'])
+      self.arne_sm = messaging_arne.SubMaster(['latControl'])
+      self.sm = messaging.SubMaster(['liveMapData'])
 
   def update(self, cp, cp2, cp_cam):
     cp_mdps = cp2 if self.CP.mdpsHarness else cp
@@ -184,6 +204,29 @@ class CarState(CarStateBase):
       ret.tpmsPressureRr = cp.vl["TPMS11"]['PRESSURE_RR']
 
     ret.cruiseGapSet = self.cruise_gap
+
+    if self.read_distance_lines != self.cruise_gap:
+      self.read_distance_lines = self.cruise_gap
+      msg_df = messaging_arne.new_message('dynamicFollowButton')
+      msg_df.dynamicFollowButton.status = max(self.read_distance_lines - 1, 0)
+      self.arne_pm.send('dynamicFollowButton', msg_df)
+
+    if not travis:
+      self.arne_sm.update(0)
+      self.sm.update(0)
+      self.smartspeed = self.sm['liveMapData'].speedLimit
+      self.arne_pm.send('arne182Status', msg)
+
+    self.pcm_acc_active = (cp_scc.vl["SCC12"]['ACCMode'] != 0)
+    if ret.gasPressed and not self.gas_pressed:
+      self.engaged_when_gas_was_pressed = self.pcm_acc_active
+    if ((ret.gasPressed) or (self.gas_pressed and not ret.gasPressed)) and self.engaged_when_gas_was_pressed and ret.vEgo > self.smartspeed:
+      dat = messaging_arne.new_message('liveTrafficData')
+      dat.liveTrafficData.speedLimitValid = True
+      dat.liveTrafficData.speedLimit = ret.vEgo * 3.6
+      if not travis:
+        self.arne_pm.send('liveTrafficData', dat)
+    self.gas_pressed = ret.gasPressed
 
     # TODO: refactor gear parsing in function
     # Gear Selection via Cluster - For those Kia/Hyundai which are not fully discovered, we can use the Cluster Indicator for Gear Selection,

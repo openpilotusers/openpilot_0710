@@ -36,7 +36,13 @@
 #define COLOR_YELLOW nvgRGBA(218, 202, 37, 255)
 #define COLOR_RED nvgRGBA(201, 34, 49, 255)
 #define COLOR_OCHRE nvgRGBA(218, 111, 37, 255)
-
+#define COLOR_OCHRE_ALPHA(x) nvgRGBA(218, 111, 37, x)
+#define COLOR_GREEN nvgRGBA(0, 255, 0, 255)
+#define COLOR_GREEN_ALPHA(x) nvgRGBA(0, 255, 0, x)
+#define COLOR_ORANGE nvgRGBA(255, 175, 3, 255)
+#define COLOR_ORANGE_ALPHA(x) nvgRGBA(255, 175, 3, x)
+#define COLOR_RED_ALPHA(x) nvgRGBA(201, 34, 49, x)
+#define COLOR_YELLOW_ALPHA(x) nvgRGBA(218, 202, 37, x)
 #define UI_BUF_COUNT 4
 
 typedef struct Rect {
@@ -50,7 +56,7 @@ typedef struct Rect {
 } Rect;
 
 const int sbr_w = 300;
-const int bdr_s = 10;
+const int bdr_s = 30;
 const int bdr_is = 30;
 const int header_h = 420;
 const int footer_h = 280;
@@ -117,8 +123,8 @@ typedef struct UIScene {
   //std::string ipAddr;
   //float output_scale;
   //cereal::CarState::GearShifter gear;
-  //bool rightblindspot;
-  //bool leftblindspot;
+  bool rightblindspot;
+  bool leftblindspot;
 
   bool is_rhd;
   bool frontview;
@@ -129,9 +135,14 @@ typedef struct UIScene {
 
   std::string alert_text1;
   std::string alert_text2;
+  std::string alertTextMsg1;
+  std::string alertTextMsg2;
   std::string alert_type;
   cereal::ControlsState::AlertSize alert_size;
+  float awareness_status;
+  float face_prob;
 
+  bool  brakePress;
   float angleSteers;
   bool brakeLights;
   float angleSteersDes;
@@ -144,6 +155,24 @@ typedef struct UIScene {
   float aEgo;
   float cpuTemp;
   int cpuPerc;
+  float steerRatio;
+  float curvature;
+  float output_scale; 
+  float cpu0Temp;
+  int blindspot_blinkingrate = 120;
+  int car_valid_status_changed = 0;
+  int batteryPercent;
+  bool batteryCharging;
+  char batteryStatus[64];
+  char ipAddr[20];
+  int fanSpeed;
+  float tpmsPressureFl;
+  float tpmsPressureFr;
+  float tpmsPressureRl;
+  float tpmsPressureRr;
+  int lateralControlMethod;
+  float radarDistance;
+  int long_plan_source;
 
   cereal::HealthData::HwType hwType;
   int satelliteCount;
@@ -158,6 +187,8 @@ typedef struct UIScene {
   float left_lane_points[MODEL_PATH_DISTANCE];
   float path_points[MODEL_PATH_DISTANCE];
   float right_lane_points[MODEL_PATH_DISTANCE];
+  cereal::CarState::GearShifter getGearShifter;
+  cereal::PathPlan::Reader path_plan;
 } UIScene;
 
 typedef struct {
