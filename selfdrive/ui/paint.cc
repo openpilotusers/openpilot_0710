@@ -523,7 +523,7 @@ static void ui_draw_debug(UIState *s)
 {
   UIScene &scene = s->scene;
 
-  int ui_viz_rx = scene.viz_rect.x + 300;
+  int ui_viz_rx = scene.viz_rect.x + 275;
   int ui_viz_ry = 108;
   int ui_viz_rx_center = scene.viz_rect.centerX();
   
@@ -537,35 +537,35 @@ static void ui_draw_debug(UIState *s)
   nvgFontSize(s->vg, 43);
   nvgFillColor(s->vg, COLOR_WHITE_ALPHA(150));
   if (s->nDebugUi2 == 1) {
-    ui_print(s, ui_viz_rx, ui_viz_ry, "Live Parameters");
-    ui_print(s, ui_viz_rx, ui_viz_ry+50, "·SR:%.2f", scene.liveParams.steerRatio);
-    ui_print(s, ui_viz_rx, ui_viz_ry+100, "·AOfs:%.2f", scene.liveParams.angleOffset);
-    ui_print(s, ui_viz_rx, ui_viz_ry+150, "·AOAVG:%.2f", scene.liveParams.angleOffsetAverage);
-    ui_print(s, ui_viz_rx, ui_viz_ry+200, "·SFact:%.2f", scene.liveParams.stiffnessFactor);
+    //ui_print(s, ui_viz_rx, ui_viz_ry, "Live Parameters");
+    //ui_print(s, ui_viz_rx, ui_viz_ry+50, "·SR:%.2f", scene.liveParams.steerRatio);
+    //ui_print(s, ui_viz_rx, ui_viz_ry+100, "·AOfs:%.2f", scene.liveParams.angleOffset);
+    //ui_print(s, ui_viz_rx, ui_viz_ry+150, "·AOAVG:%.2f", scene.liveParams.angleOffsetAverage);
+    //ui_print(s, ui_viz_rx, ui_viz_ry+200, "·SFact:%.2f", scene.liveParams.stiffnessFactor);
 
-    ui_print(s, ui_viz_rx, ui_viz_ry+270, "ADelay:%.2f", scene.pathPlan.steerActuatorDelay);
-    ui_print(s, ui_viz_rx, ui_viz_ry+320, "SRCost:%.2f", scene.pathPlan.steerRateCost);
-    ui_print(s, ui_viz_rx, ui_viz_ry+370, "OutScale:%.3f", scene.output_scale);
-    ui_print(s, ui_viz_rx, ui_viz_ry+420, "Awareness:%.2f", scene.awareness_status);
+    ui_print(s, ui_viz_rx, ui_viz_ry+250, "ADelay:%.2f", scene.pathPlan.steerActuatorDelay);
+    ui_print(s, ui_viz_rx, ui_viz_ry+300, "SRCost:%.2f", scene.pathPlan.steerRateCost);
+    ui_print(s, ui_viz_rx, ui_viz_ry+350, "OutScale:%.3f", scene.output_scale);
+    //ui_print(s, ui_viz_rx, ui_viz_ry+400, "Awareness:%.2f", scene.awareness_status);
     if (s->lateral_control == 0) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+470, "LaC:PID");
+      ui_print(s, ui_viz_rx, ui_viz_ry+400, "LaC:PID");
     } else if (s->lateral_control == 1) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+470, "LaC:INDI");
+      ui_print(s, ui_viz_rx, ui_viz_ry+400, "LaC:INDI");
     } else if (s->lateral_control == 2) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+470, "LaC:LQR");
+      ui_print(s, ui_viz_rx, ui_viz_ry+400, "LaC:LQR");
     }
     if (scene.long_plan_source == 0) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+520, "LPS:none");
+      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:none");
     } else if (scene.long_plan_source == 1) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+520, "LPS:cruise");
+      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:cruise");
     } else if (scene.long_plan_source == 2) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+520, "LPS:mpc1");
+      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:mpc1");
     } else if (scene.long_plan_source == 3) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+520, "LPS:mpc2");
+      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:mpc2");
     } else if (scene.long_plan_source == 4) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+520, "LPS:mpc3");
+      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:mpc3");
     } else if (scene.long_plan_source == 5) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+520, "LPS:model");
+      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:model");
     }
 
     nvgFontSize(s->vg, 45);
@@ -658,13 +658,14 @@ static void ui_draw_vision_maxspeed(UIState *s) {
 
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
   const int text_x = viz_maxspeed_x + (viz_maxspeed_xo / 2) + (viz_maxspeed_w / 2);
-  ui_draw_text(s->vg, text_x, 96, "설정속도", 26 * 2.2, COLOR_WHITE_ALPHA(is_cruise_set ? 200 : 100), s->font_sans_regular);
+  const int text_y = viz_maxspeed_y + 65;  
+  ui_draw_text(s->vg, text_x, text_y, "설정속도", 26 * 2.1, COLOR_WHITE_ALPHA(is_cruise_set ? 200 : 100), s->font_sans_regular);
 
   if (is_cruise_set) {
     snprintf(maxspeed_str, sizeof(maxspeed_str), "%d", maxspeed_calc);
-    ui_draw_text(s->vg, text_x, 190, maxspeed_str, 48 * 2.3, COLOR_WHITE, s->font_sans_bold);
+    ui_draw_text(s->vg, text_x, text_y + 80, maxspeed_str, 48 * 2.3, COLOR_WHITE, s->font_sans_bold);
   } else {
-    ui_draw_text(s->vg, text_x, 190, "-", 42 * 2.3, COLOR_WHITE_ALPHA(100), s->font_sans_semibold);
+    ui_draw_text(s->vg, text_x, text_y + 80, "-", 42 * 2.3, COLOR_WHITE_ALPHA(100), s->font_sans_semibold);
   }
 }
 
@@ -712,8 +713,8 @@ static void ui_draw_vision_speedlimit(UIState *s) {
   // Draw "Speed Limit" Text
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
   color = is_speedlim_valid && s->is_ego_over_limit ? COLOR_WHITE : COLOR_BLACK;
-  ui_draw_text(s->vg, text_x + (is_speedlim_valid ? 6 : 0), text_y, "스마트", 50*0.8, color, s->font_sans_semibold);
-  ui_draw_text(s->vg, text_x + (is_speedlim_valid ? 6 : 0), text_y + 40, "크루즈", 50*0.8, color, s->font_sans_semibold);
+  ui_draw_text(s->vg, text_x + (is_speedlim_valid ? 6 : 0), text_y, "스마트", 50*0.85, color, s->font_sans_semibold);
+  ui_draw_text(s->vg, text_x + (is_speedlim_valid ? 6 : 0), text_y + 35, "크루즈", 50*0.85, color, s->font_sans_semibold);
   
   // Draw Speed Text
   color = s->is_ego_over_limit ? COLOR_WHITE : COLOR_BLACK;
@@ -886,9 +887,9 @@ static void ui_draw_driver_view(UIState *s) {
 
 static void ui_draw_ml_button(UIState *s) {
   int btn_w = 400;
-  int btn_h = 138;
+  int btn_h = 110;
   int x = 1920 / 2;
-  int y = 915;
+  int y = 960;
   int btn_x = x - btn_w / 2;
   int btn_y = y - btn_h / 2;
 
@@ -908,7 +909,7 @@ static void ui_draw_ml_button(UIState *s) {
   nvgFill(s->vg);
 
   nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
-  nvgFontSize(s->vg, 65*0.8);
+  nvgFontSize(s->vg, 60*0.8);
   nvgText(s->vg, x, y + btn_h / 8, "MODEL LONG", NULL);
 }
 

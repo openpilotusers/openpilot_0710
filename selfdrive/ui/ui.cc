@@ -401,10 +401,18 @@ void ui_update(UIState *s) {
   // Read params
   if ((s->sm)->frame % (5*UI_FREQ) == 0) {
     read_param(&s->is_metric, "IsMetric");
+    read_param(&s->lateral_control, "LateralControlMethod");
+    read_param(&s->is_OpenpilotViewEnabled, "IsOpenpilotViewEnabled");
   } else if ((s->sm)->frame % (7*UI_FREQ) == 0) {
+    read_param(&s->nOpkrUIBrightness, "OpkrUIBrightness");
+    read_param(&s->nOpkrUIVolumeBoost, "OpkrUIVolumeBoost");
     read_param(&s->speed_lim_off, "SpeedLimitOffset");
-  } else if ((s->sm)->frame % (11*UI_FREQ) == 0) {
     read_param(&s->limit_set_speed, "LimitSetSpeed");
+  } else if ((s->sm)->frame % (11*UI_FREQ) == 0) {
+    read_param(&s->nDebugUi1, "DebugUi1");
+    read_param(&s->nDebugUi2, "DebugUi2");
+    read_param(&s->nOpkrBlindSpotDetect, "OpkrBlindSpotDetect");
+    read_param(&s->nOpkrAutoScreenOff, "OpkrAutoScreenOff");
   } else if ((s->sm)->frame % (6*UI_FREQ) == 0) {
     int param_read = read_param(&s->last_athena_ping, "LastAthenaPingTime");
     if (param_read != 0) { // Failed to read param
