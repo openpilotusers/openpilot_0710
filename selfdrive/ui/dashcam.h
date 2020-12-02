@@ -195,7 +195,7 @@ void draw_date_time(UIState *s) {
   int rect_w = 500;
   int rect_h = 70;
   int rect_x = 1920-rect_w;
-  int rect_y = -30;
+  int rect_y = -40;
 
   // Get local time to display
   char now[50];
