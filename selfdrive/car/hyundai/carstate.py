@@ -204,7 +204,8 @@ class CarState(CarStateBase):
       ret.tpmsPressureRr = cp.vl["TPMS11"]['PRESSURE_RR']
 
     ret.cruiseGapSet = self.cruise_gap
-
+    
+    msg = messaging_arne.new_message('arne182Status')
     if self.read_distance_lines != self.cruise_gap:
       self.read_distance_lines = self.cruise_gap
       msg_df = messaging_arne.new_message('dynamicFollowButton')
