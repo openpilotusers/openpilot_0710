@@ -712,15 +712,15 @@ static void ui_draw_vision_speedlimit(UIState *s) {
   // Draw "Speed Limit" Text
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
   color = is_speedlim_valid && s->is_ego_over_limit ? COLOR_WHITE : COLOR_BLACK;
-  ui_draw_text(s->vg, text_x, 142, "제한속도", 26 * 2.2, color, s->font_sans_semibold);
+  ui_draw_text(s->vg, text_x, 144, "제한속도", 26 * 2.2, color, s->font_sans_semibold);
   
   // Draw Speed Text
   color = s->is_ego_over_limit ? COLOR_WHITE : COLOR_BLACK;
   if (is_speedlim_valid) {
     snprintf(speedlim_str, sizeof(speedlim_str), "%d", speedlim_calc);
-    ui_draw_text(s->vg, text_x, 242, speedlim_str, 48*2.3, color, s->font_sans_bold);
+    ui_draw_text(s->vg, text_x, 244, speedlim_str, 48*2.3, color, s->font_sans_bold);
   } else {
-    ui_draw_text(s->vg, text_x, 242, "-", 42*2.3, color, s->font_sans_semibold);
+    ui_draw_text(s->vg, text_x, 244, "-", 42*2.3, color, s->font_sans_semibold);
   }
 }
 
@@ -742,7 +742,7 @@ static void ui_draw_vision_speed(UIState *s) {
     nvgLineTo(s->vg, viz_speed_x - viz_speed_w/2, viz_rect.y + header_h/4 + header_h/4);
     nvgLineTo(s->vg, viz_speed_x, viz_rect.y + header_h/2 + header_h/4);
     nvgClosePath(s->vg);
-    nvgFillColor(s->vg, nvgRGBA(245,245,245,s->scene.blinker_blinkingrate>=50?210:60));
+    nvgFillColor(s->vg, nvgRGBA(23,134,68,s->scene.blinker_blinkingrate>=50?210:60));
     nvgFill(s->vg);
   }
   if(s->scene.rightBlinker) {

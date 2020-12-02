@@ -600,7 +600,7 @@ def main():
     ("IsGeofenceEnabled", "-1"),
     ("SpeedLimitOffset", "0"),
     ("LongitudinalControl", "1"),
-    ("LimitSetSpeed", "1"),
+    ("LimitSetSpeed", "0"),
     ("LimitSetSpeedNeural", "0"),
     ("LastUpdateTime", datetime.datetime.utcnow().isoformat().encode('utf8')),
     ("OpenpilotEnabledToggle", "1"),
