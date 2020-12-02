@@ -553,11 +553,11 @@ def manager_prepare(spinner=None):
   process_cnt = len(managed_processes)
   loader_proc = []
   params = Params()
-  spinner_text = "chffrplus" if params.get("Passive")=="1" else "openpilot"
+  spinner_text = "chffrplus" if params.get("Passive")=="1" else "오픈파일럿"
   for n,p in enumerate(managed_processes):
     if os.getenv("PREPAREONLY") is None:
       loader_proc.append(subprocess.Popen(["./spinner",
-        "loading {0}: {1}/{2} {3}".format(spinner_text, n+1, process_cnt, p)],
+        "{0} 프로세스로딩: {1}/{2} {3}".format(spinner_text, n+1, process_cnt, p)],
         cwd=os.path.join(BASEDIR, "selfdrive", "ui", "spinner"),
         close_fds=True))
     prepare_managed_process(p)
