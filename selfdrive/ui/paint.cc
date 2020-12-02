@@ -887,9 +887,9 @@ static void ui_draw_ml_button(UIState *s) {
   int btn_w = 380;
   int btn_h = 95;
   int x = 1920 - (btn_w/2) - 35;
-  int y = 1080 - (btn_h/2) - 35 - 165;
+  int y = 1080 - (btn_h/2) - 35 - 162;
   int btn_x = x - btn_w / 2; // 1505
-  int btn_y = y - btn_h / 2; // 785
+  int btn_y = y - btn_h / 2; // 788
 
   nvgBeginPath(s->vg);
   nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 15);
