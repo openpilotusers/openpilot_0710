@@ -86,7 +86,7 @@
         }
       }
     ]
-  }, 
+  },
   "EE": {
     "Default": [
       {
@@ -175,6 +175,94 @@
       }
     ]
   }, 
+  "KR": {
+    "Default": [
+      {
+        "speed": "100", 
+        "tags": {
+          "highway": "motorway"
+        }
+      }, 
+      {
+        "speed": "80", 
+        "tags": {
+          "highway": "trunk"
+        }
+      }, 
+      {
+        "speed": "80", 
+        "tags": {
+          "highway": "primary"
+        }
+      }, 
+      {
+        "speed": "50", 
+        "tags": {
+          "highway": "secondary"
+        }
+      }, 
+      {
+        "speed": "50", 
+        "tags": {
+          "highway": "tertiary"
+        }
+      }, 
+      {
+        "speed": "80", 
+        "tags": {
+          "highway": "unclassified"
+        }
+      }, 
+      {
+        "speed": "50", 
+        "tags": {
+          "highway": "residential"
+        }
+      }, 
+      {
+        "speed": "40", 
+        "tags": {
+          "highway": "service"
+        }
+      }, 
+      {
+        "speed": "90", 
+        "tags": {
+          "highway": "motorway_link"
+        }
+      }, 
+      {
+        "speed": "80", 
+        "tags": {
+          "highway": "trunk_link"
+        }
+      }, 
+      {
+        "speed": "80", 
+        "tags": {
+          "highway": "primary_link"
+        }
+      }, 
+      {
+        "speed": "50", 
+        "tags": {
+          "highway": "secondary_link"
+        }
+      }, 
+      {
+        "speed": "50", 
+        "tags": {
+          "highway": "tertiary_link"
+        }
+      }, 
+      {
+        "speed": "30", 
+        "tags": {
+          "highway": "living_street"
+        }
+      }
+    ]
+  },
   "CA": {
     "Default": [
       {
