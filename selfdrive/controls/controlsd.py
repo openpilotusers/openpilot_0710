@@ -29,6 +29,8 @@ import threading
 #from selfdrive.swaglog import cloudlog
 #from selfdrive.version import version, dirty
 
+import common.log as trace1
+
 LDW_MIN_SPEED = 50 * CV.KPH_TO_MS
 LANE_DEPARTURE_THRESHOLD = 0.1
 STEER_ANGLE_SATURATION_TIMEOUT = 1.0 / DT_CTRL
