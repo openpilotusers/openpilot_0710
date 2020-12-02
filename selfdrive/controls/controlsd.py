@@ -528,7 +528,7 @@ class Controls:
           self.AM.add_custom(frame, df_alert, ET.WARNING, self.enabled, extra_text_1=df_out.model_profile_text + ' (auto)')
           return
       else:
-        self.AM.add_custom(frame, df_alert, ET.WARNING, self.enabled, extra_text_1=df_out.user_profile_text, extra_text_2='Dynamic follow: {} profile active'.format(df_out.user_profile_text))
+        self.AM.add_custom(frame, df_alert, ET.WARNING, self.enabled, extra_text_1=df_out.user_profile_text, extra_text_2='동적차간거리조절: {} 프로파일 활성화'.format(df_out.user_profile_text))
         return
     if self.traffic_light_alerts:
       traffic_status = self.arne_sm['trafficModelEvent'].status

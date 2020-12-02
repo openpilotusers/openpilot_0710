@@ -787,7 +787,7 @@ static void ui_draw_vision_event(UIState *s) {
     nvgFill(s->vg);
   } else if (s->scene.controls_state.getDecelForModel() && s->scene.controls_state.getEnabled()) {
     // draw winding road sign
-    const int img_turn_size = 160*1.5*0.8;
+    const int img_turn_size = 160*1.5*0.75;
     ui_draw_image(s->vg, viz_event_x - (img_turn_size / 4) + 80, viz_event_y + bdr_s - 25, img_turn_size, img_turn_size, s->img_turn, 1.0f);
   } else {
     // draw steering wheel
