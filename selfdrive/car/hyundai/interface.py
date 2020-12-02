@@ -75,6 +75,7 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kpV = [0.1, PidKp]
       ret.lateralTuning.pid.kiBP = [0., 9.]
       ret.lateralTuning.pid.kiV = [0.01, PidKi]
+      ret.lateralTuning.pid.kdBP, ret.lateralTuning.pid.kdV = [[0.], [0.]]
     elif int(params.get('LateralControlMethod')) == 1:
       ret.lateralTuning.init('indi')
       ret.lateralTuning.indi.innerLoopGain = InnerLoopGain
