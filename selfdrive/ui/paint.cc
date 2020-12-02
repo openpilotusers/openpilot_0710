@@ -712,15 +712,15 @@ static void ui_draw_vision_speedlimit(UIState *s) {
   // Draw "Speed Limit" Text
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
   color = is_speedlim_valid && s->is_ego_over_limit ? COLOR_WHITE : COLOR_BLACK;
-  ui_draw_text(s->vg, text_x, 144, "제한속도", 26 * 2.2, color, s->font_sans_semibold);
+  ui_draw_text(s->vg, text_x, 145, "제한속도", 26 * 2.2, color, s->font_sans_semibold);
   
   // Draw Speed Text
   color = s->is_ego_over_limit ? COLOR_WHITE : COLOR_BLACK;
   if (is_speedlim_valid) {
     snprintf(speedlim_str, sizeof(speedlim_str), "%d", speedlim_calc);
-    ui_draw_text(s->vg, text_x, 244, speedlim_str, 48*2.3, color, s->font_sans_bold);
+    ui_draw_text(s->vg, text_x, 245, speedlim_str, 48*2.3, color, s->font_sans_bold);
   } else {
-    ui_draw_text(s->vg, text_x, 244, "-", 42*2.3, color, s->font_sans_semibold);
+    ui_draw_text(s->vg, text_x, 245, "-", 42*2.3, color, s->font_sans_semibold);
   }
 }
 
