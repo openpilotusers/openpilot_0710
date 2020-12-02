@@ -884,15 +884,15 @@ static void ui_draw_driver_view(UIState *s) {
 }
 
 static void ui_draw_ml_button(UIState *s) {
-  int btn_w = 400;
+  int btn_w = 380;
   int btn_h = 95;
   int x = 1920 - (btn_w/2) - 35;
-  int y = 1080 - (btn_h/2) - 35 - 160;
-  int btn_x = x - btn_w / 2;
-  int btn_y = y - btn_h / 2;
+  int y = 1080 - (btn_h/2) - 35 - 170;
+  int btn_x = x - btn_w / 2; // 1505
+  int btn_y = y - btn_h / 2; // 780
 
   nvgBeginPath(s->vg);
-  nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 25);
+  nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 20);
   if (s->scene.mlButtonEnabled) {  // change outline color based on status of button
     nvgStrokeColor(s->vg, nvgRGBA(55, 184, 104, 255));
   } else {
@@ -902,13 +902,13 @@ static void ui_draw_ml_button(UIState *s) {
   nvgStroke(s->vg);
 
   nvgBeginPath(s->vg);  // dark background for readability
-  nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 25);
+  nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 20);
   nvgFillColor(s->vg, nvgRGBA(75, 75, 75, 75));
   nvgFill(s->vg);
 
   nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
   nvgFontSize(s->vg, 60*0.8);
-  nvgText(s->vg, x, (y + btn_h / 8)+5, "MODEL LONG", NULL);
+  nvgText(s->vg, x, (y + btn_h / 8)+10, "MODEL LONG", NULL);
 }
 
 

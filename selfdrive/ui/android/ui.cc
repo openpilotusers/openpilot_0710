@@ -50,14 +50,18 @@ static void send_ml(UIState *s, bool enabled) {
   s->pm->send("modelLongButton", msg);
 }
 
+
+  if (touch_x >= 1585 && touch_x <= 1725) {
+    if (touch_y >= 905 && touch_y <= 1045) {
+      return true;
+    }
+  }
+
 static bool handle_ml_touch(UIState *s, int touch_x, int touch_y) {
   //mlButton manager
-  int padding = 40;
-  int btn_w = 400;
-  int btn_h = 95;
-  int xs[2] = {1920 - 35 - (btn_w/2), 1920 - 35 + (btn_w / 2)};
-  int y_top = 950 - (btn_h / 2);
-  if (xs[0] <= touch_x + padding && touch_x - padding <= xs[1] && y_top - padding <= touch_y) {
+  int xs[2] = {1505, 1920};
+  int ys[2] = {780, 875};
+  if ((xs[0] <= touch_x && touch_x <= xs[1]) && (ys[0] <= touch_y && touch_y <= ys[1])) {
     s->scene.mlButtonEnabled = !s->scene.mlButtonEnabled;
     send_ml(s, s->scene.mlButtonEnabled);
     printf("ml button: %d\n", s->scene.mlButtonEnabled);
