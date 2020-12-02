@@ -55,8 +55,8 @@ static bool handle_ml_touch(UIState *s, int touch_x, int touch_y) {
   int padding = 40;
   int btn_w = 400;
   int btn_h = 95;
-  int xs[2] = {1920 - 35 - btn_w -(btn_w/2), 1920 - 35 - btn_w + (btn_w / 2)};
-  int y_top = 950 - btn_h / 2;
+  int xs[2] = {1920 - 35 - (btn_w/2), 1920 - 35 + (btn_w / 2)};
+  int y_top = 950 - (btn_h / 2);
   if (xs[0] <= touch_x + padding && touch_x - padding <= xs[1] && y_top - padding <= touch_y) {
     s->scene.mlButtonEnabled = !s->scene.mlButtonEnabled;
     send_ml(s, s->scene.mlButtonEnabled);
