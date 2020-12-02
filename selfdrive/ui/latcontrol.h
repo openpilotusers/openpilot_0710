@@ -111,13 +111,16 @@ static void draw_control_button3(UIState *s, int touch_x, int touch_y) {
     nvgBeginPath(s->vg);
     nvgRoundedRect(s->vg, btn_x3, btn_y, btn_w, btn_h, 100);
     if (s->limit_set_speed == 1) {
-      nvgStrokeColor(s->vg, nvgRGBA(55, 184, 104, 200));
+      nvgStrokeColor(s->vg, nvgRGBA(55, 184, 104, 255));
+      nvgStrokeWidth(s->vg, 6);
+      nvgStroke(s->vg);
+      nvgFillColor(s->vg, nvgRGBA(0,255,0,200));
+      nvgFill(s->vg);
     } else {
       nvgStrokeColor(s->vg, nvgRGBA(255,255,255,80));
+      nvgStrokeWidth(s->vg, 6);
+      nvgStroke(s->vg);
     }
-    nvgStrokeWidth(s->vg, 6);
-    nvgStroke(s->vg);
-    
     nvgFontSize(s->vg, 45);
     nvgFillColor(s->vg, nvgRGBA(255,255,255,200));
     nvgText(s->vg,btn_xc3,btn_yc,"LIM",NULL);
