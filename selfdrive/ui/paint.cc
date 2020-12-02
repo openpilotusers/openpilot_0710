@@ -887,12 +887,12 @@ static void ui_draw_ml_button(UIState *s) {
   int btn_w = 380;
   int btn_h = 95;
   int x = 1920 - (btn_w/2) - 35;
-  int y = 1080 - (btn_h/2) - 35 - 170;
+  int y = 1080 - (btn_h/2) - 35 - 165;
   int btn_x = x - btn_w / 2; // 1505
-  int btn_y = y - btn_h / 2; // 780
+  int btn_y = y - btn_h / 2; // 785
 
   nvgBeginPath(s->vg);
-  nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 20);
+  nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 15);
   if (s->scene.mlButtonEnabled) {  // change outline color based on status of button
     nvgStrokeColor(s->vg, nvgRGBA(55, 184, 104, 255));
   } else {
@@ -902,7 +902,7 @@ static void ui_draw_ml_button(UIState *s) {
   nvgStroke(s->vg);
 
   nvgBeginPath(s->vg);  // dark background for readability
-  nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 20);
+  nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 15);
   nvgFillColor(s->vg, nvgRGBA(75, 75, 75, 75));
   nvgFill(s->vg);
 
