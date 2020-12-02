@@ -534,38 +534,38 @@ static void ui_draw_debug(UIState *s)
     ui_draw_text(s->vg, 0, 1078, scene.alertTextMsg2.c_str(), 50, COLOR_WHITE_ALPHA(150), s->font_sans_semibold);
   }
 
-  nvgFontSize(s->vg, 43);
+  nvgFontSize(s->vg, 42);
   nvgFillColor(s->vg, COLOR_WHITE_ALPHA(150));
   if (s->nDebugUi2 == 1) {
     //ui_print(s, ui_viz_rx, ui_viz_ry, "Live Parameters");
-    //ui_print(s, ui_viz_rx, ui_viz_ry+50, "·SR:%.2f", scene.liveParams.steerRatio);
-    //ui_print(s, ui_viz_rx, ui_viz_ry+100, "·AOfs:%.2f", scene.liveParams.angleOffset);
-    //ui_print(s, ui_viz_rx, ui_viz_ry+150, "·AOAVG:%.2f", scene.liveParams.angleOffsetAverage);
-    //ui_print(s, ui_viz_rx, ui_viz_ry+200, "·SFact:%.2f", scene.liveParams.stiffnessFactor);
+    ui_print(s, ui_viz_rx, ui_viz_ry+250, "SR:%.2f", scene.liveParams.steerRatio);
+    //ui_print(s, ui_viz_rx, ui_viz_ry+100, "AOfs:%.2f", scene.liveParams.angleOffset);
+    ui_print(s, ui_viz_rx, ui_viz_ry+300, "AA:%.2f", scene.liveParams.angleOffsetAverage);
+    ui_print(s, ui_viz_rx, ui_viz_ry+350, "SF:%.2f", scene.liveParams.stiffnessFactor);
 
-    ui_print(s, ui_viz_rx, ui_viz_ry+250, "ADelay:%.2f", scene.pathPlan.steerActuatorDelay);
-    ui_print(s, ui_viz_rx, ui_viz_ry+300, "SRCost:%.2f", scene.pathPlan.steerRateCost);
-    ui_print(s, ui_viz_rx, ui_viz_ry+350, "OutScale:%.3f", scene.output_scale);
+    ui_print(s, ui_viz_rx, ui_viz_ry+400, "AD:%.2f", scene.pathPlan.steerActuatorDelay);
+    ui_print(s, ui_viz_rx, ui_viz_ry+450, "SC:%.2f", scene.pathPlan.steerRateCost);
+    ui_print(s, ui_viz_rx, ui_viz_ry+500, "OS:%.3f", scene.output_scale);
     //ui_print(s, ui_viz_rx, ui_viz_ry+400, "Awareness:%.2f", scene.awareness_status);
     if (s->lateral_control == 0) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+400, "LaC:PID");
+      ui_print(s, scene.viz_rect.x+30, 30, "PID");
     } else if (s->lateral_control == 1) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+400, "LaC:INDI");
+      ui_print(s, scene.viz_rect.x+30, 30, "INDI");
     } else if (s->lateral_control == 2) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+400, "LaC:LQR");
+      ui_print(s, scene.viz_rect.x+30, 30, "LQR");
     }
     if (scene.long_plan_source == 0) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:none");
+      ui_print(s, ui_viz_rx, ui_viz_ry+550, "LP:none");
     } else if (scene.long_plan_source == 1) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:cruise");
+      ui_print(s, ui_viz_rx, ui_viz_ry+550, "LP:cruise");
     } else if (scene.long_plan_source == 2) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:mpc1");
+      ui_print(s, ui_viz_rx, ui_viz_ry+550, "LP:mpc1");
     } else if (scene.long_plan_source == 3) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:mpc2");
+      ui_print(s, ui_viz_rx, ui_viz_ry+550, "LP:mpc2");
     } else if (scene.long_plan_source == 4) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:mpc3");
+      ui_print(s, ui_viz_rx, ui_viz_ry+550, "LP:mpc3");
     } else if (scene.long_plan_source == 5) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+450, "LPS:model");
+      ui_print(s, ui_viz_rx, ui_viz_ry+550, "LP:model");
     }
 
     nvgFontSize(s->vg, 45);
