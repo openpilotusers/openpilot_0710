@@ -534,7 +534,7 @@ static void ui_draw_debug(UIState *s)
     ui_draw_text(s->vg, 0, 1078, scene.alertTextMsg2.c_str(), 50, COLOR_WHITE_ALPHA(150), s->font_sans_semibold);
   }
 
-  nvgFontSize(s->vg, 42);
+  nvgFontSize(s->vg, 40);
   nvgFillColor(s->vg, COLOR_WHITE_ALPHA(150));
   if (s->nDebugUi2 == 1) {
     //ui_print(s, ui_viz_rx, ui_viz_ry, "Live Parameters");
@@ -548,11 +548,11 @@ static void ui_draw_debug(UIState *s)
     ui_print(s, ui_viz_rx, ui_viz_ry+500, "OS:%.3f", scene.output_scale);
     //ui_print(s, ui_viz_rx, ui_viz_ry+400, "Awareness:%.2f", scene.awareness_status);
     if (s->lateral_control == 0) {
-      ui_print(s, scene.viz_rect.x+30, 30, "PID");
+      ui_print(s, ui_viz_rx_center, 30, "PID");
     } else if (s->lateral_control == 1) {
-      ui_print(s, scene.viz_rect.x+30, 30, "INDI");
+      ui_print(s, ui_viz_rx_center, 30, "INDI");
     } else if (s->lateral_control == 2) {
-      ui_print(s, scene.viz_rect.x+30, 30, "LQR");
+      ui_print(s, ui_viz_rx_center, 30, "LQR");
     }
     if (scene.long_plan_source == 0) {
       ui_print(s, ui_viz_rx, ui_viz_ry+550, "LP:none");

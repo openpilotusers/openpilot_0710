@@ -192,10 +192,10 @@ void draw_date_time(UIState *s) {
 
   // Draw the current date/time
 
-  int rect_w = 400;
-  int rect_h = 80;
+  int rect_w = 500;
+  int rect_h = 70;
   int rect_x = 1920-rect_w;
-  int rect_y = 0;
+  int rect_y = -30;
 
   // Get local time to display
   char now[50];
@@ -210,7 +210,7 @@ void draw_date_time(UIState *s) {
     nvgStrokeWidth(s->vg, 0);
     nvgStroke(s->vg);
 
-  nvgFontSize(s->vg, 40);
+  nvgFontSize(s->vg, 38);
     nvgFontFace(s->vg, "sans-semibold");
     nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 200));
     nvgText(s->vg,rect_x+231,rect_y+55,now,NULL);
