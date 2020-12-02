@@ -58,7 +58,7 @@ static void draw_control_buttons(UIState *s, int touch_x, int touch_y) {
     }
     if (s->acc_mode == 0) {
       nvgFillColor(s->vg, nvgRGBA(255,255,255,200));
-      nvgText(s->vg,btn_xc2,btn_yc,"DYNM",NULL);
+      nvgText(s->vg,btn_xc2,btn_yc,"NORM",NULL);
     } else if (s->acc_mode == 1) {
       nvgFillColor(s->vg, nvgRGBA(255,255,255,200));
       nvgText(s->vg,btn_xc2,btn_yc,"SPRT",NULL);
