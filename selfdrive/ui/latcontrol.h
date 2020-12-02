@@ -80,7 +80,7 @@ static void draw_control_button2(UIState *s, int touch_x, int touch_y) {
     } else if (s->acc_mode == 1) {
       nvgStrokeColor(s->vg, nvgRGBA(255, 175, 3, 150));
     } else if (s->acc_mode == 2) {
-      nvgStrokeColor(s->vg, nvgRGBA(0,0,200,150));
+      nvgStrokeColor(s->vg, nvgRGBA(135, 206, 235, 150));
     }
     nvgStrokeWidth(s->vg, 6);
     nvgStroke(s->vg);
@@ -114,7 +114,7 @@ static void draw_control_button3(UIState *s, int touch_x, int touch_y) {
       nvgStrokeColor(s->vg, nvgRGBA(55,184,104,255));
       nvgStrokeWidth(s->vg, 6);
       nvgStroke(s->vg);
-      nvgFillColor(s->vg, nvgRGBA(0,255,0,50));
+      nvgFillColor(s->vg, nvgRGBA(0,255,0,25));
       nvgFill(s->vg);
     } else {
       nvgStrokeColor(s->vg, nvgRGBA(255,255,255,80));
