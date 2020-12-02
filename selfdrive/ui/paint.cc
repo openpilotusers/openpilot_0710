@@ -718,9 +718,9 @@ static void ui_draw_vision_speedlimit(UIState *s) {
   color = s->is_ego_over_limit ? COLOR_WHITE : COLOR_BLACK;
   if (is_speedlim_valid) {
     snprintf(speedlim_str, sizeof(speedlim_str), "%d", speedlim_calc);
-    ui_draw_text(s->vg, text_x, 245, speedlim_str, 48*2.3, color, s->font_sans_bold);
+    ui_draw_text(s->vg, text_x, 242, speedlim_str, 48*2.3, color, s->font_sans_bold);
   } else {
-    ui_draw_text(s->vg, text_x, 245, "-", 42*2.3, color, s->font_sans_semibold);
+    ui_draw_text(s->vg, text_x, 242, "-", 42*2.3, color, s->font_sans_semibold);
   }
 }
 
