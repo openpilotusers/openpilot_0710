@@ -50,13 +50,6 @@ static void send_ml(UIState *s, bool enabled) {
   s->pm->send("modelLongButton", msg);
 }
 
-
-  if (touch_x >= 1585 && touch_x <= 1725) {
-    if (touch_y >= 905 && touch_y <= 1045) {
-      return true;
-    }
-  }
-
 static bool handle_ml_touch(UIState *s, int touch_x, int touch_y) {
   //mlButton manager
   int xs[2] = {1505, 1920};
