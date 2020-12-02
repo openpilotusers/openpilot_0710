@@ -188,6 +188,30 @@ def main(filename = DEFAULT_OUTPUT_FILENAME):
   EE.add_rule({"highway": "tertiary_link"}, "50")
   EE.add_rule({"highway": "living_street"}, "20")
 
+  """
+  --------------------------------------------------
+      KR - Republic of Korea
+  --------------------------------------------------
+  """
+  KR = Country("KR")
+  countries.append(KR)
+
+  """ Default rules """
+  KR.add_rule({"highway": "motorway"}, "100")
+  KR.add_rule({"highway": "trunk"}, "80")
+  KR.add_rule({"highway": "primary"}, "80")
+  KR.add_rule({"highway": "secondary"}, "50")
+  KR.add_rule({"highway": "tertiary"}, "50")
+  KR.add_rule({"highway": "unclassified"}, "80")
+  KR.add_rule({"highway": "residential"}, "50")
+  KR.add_rule({"highway": "service"}, "40")
+  KR.add_rule({"highway": "motorway_link"}, "90")
+  KR.add_rule({"highway": "trunk_link"}, "80")
+  KR.add_rule({"highway": "primary_link"}, "80")
+  KR.add_rule({"highway": "secondary_link"}, "50")
+  KR.add_rule({"highway": "tertiary_link"}, "50")
+  KR.add_rule({"highway": "living_street"}, "30")
+
 
   """ --- DO NOT MODIFY CODE BELOW THIS LINE --- """
   """ --- ADD YOUR COUNTRY OR STATE ABOVE --- """
