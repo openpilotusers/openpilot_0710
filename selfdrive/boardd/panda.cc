@@ -255,18 +255,17 @@ void Panda::set_loopback(bool loopback){
 }
 
 const char* Panda::get_firmware_version(){
-  const char* fw_sig_buf = new char[64]();
+  const char* fw_sig_buf = new char[128]();
 
-  int read_1 = usb_read(0xd6, 0, 0, (unsigned char*)fw_sig_buf, 64);
-  printf("got verion: %d\n", read_1);
-  //int read_2 = usb_read(0xd4, 0, 0, (unsigned char*)fw_sig_buf + 64, 64);
+  int read_1 = usb_read(0xd3, 0, 0, (unsigned char*)fw_sig_buf, 64);
+  int read_2 = usb_read(0xd4, 0, 0, (unsigned char*)fw_sig_buf + 64, 64);
 
-  //if ((read_1 == 64) && (read_2 == 64)) {
+  if ((read_1 == 64) && (read_2 == 64)) {
     return fw_sig_buf;
-  //}
+  }
 
-  //delete[] fw_sig_buf;
-  //return NULL;
+  delete[] fw_sig_buf;
+  return NULL;
 }
 
 const char* Panda::get_serial(){
@@ -322,10 +321,10 @@ int Panda::can_receive(cereal::Event::Builder &event){
   uint32_t data[RECV_SIZE/4];
   int recv = usb_bulk_read(0x81, (unsigned char*)data, RECV_SIZE);
 
-  // Not sure if this can happen
-  if (recv < 0) recv = 0;
-
-  if (recv == RECV_SIZE) {
+  // return if length is 0
+  if (recv <= 0) {
+    return 0;
+  } else if (recv == RECV_SIZE) {
     LOGW("Receive buffer full");
   }
 
