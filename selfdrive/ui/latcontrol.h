@@ -120,7 +120,7 @@ static void draw_control_button3(UIState *s, int touch_x, int touch_y) {
     
     nvgFontSize(s->vg, 45);
     nvgFillColor(s->vg, nvgRGBA(255,255,255,200));
-    nvgText(s->vg,btn_xc1,btn_yc,"LIM",NULL);
+    nvgText(s->vg,btn_xc3,btn_yc,"LIM",NULL);
   }
 }
 
@@ -163,14 +163,12 @@ bool latcontrol( UIState *s, int touch_x, int touch_y ) {
     touched = true;
   }
   if ((control_button_clicked3(touch_x,touch_y)) && (s->scene.uilayout_sidebarcollapsed == true)) {
-    s->limit_set_speed = s->limit_set_speed + 1;
-    if (s->limit_set_speed > 1) {
-      s->limit_set_speed = 0;
-    }
-    if (s->limit_set_speed == 0) {
-      Params().write_db_value("LimitSetSpeed", "0", 1);
-    } else if (s->limit_set_speed == 1) {
+    if (s->limit_set_speed == false) {
+      s->limit_set_speed = true;
       Params().write_db_value("LimitSetSpeed", "1", 1);
+    } else if (s->limit_set_speed == true) {
+      s->limit_set_speed = false;
+      Params().write_db_value("LimitSetSpeed", "0", 1);
     }
     touched = true;
   }
