@@ -526,13 +526,14 @@ static void ui_draw_standstill(UIState *s) {
   int viz_standstill_y = s->scene.viz_rect.y + (bdr_s*1.5) + 160 + 300;
   
   static int minute = 0;
-  static int second = 0;
+  int second = 0;
+
+  if ((int(scene.pathPlan.standstillElapsedTime) % 60) == 0) {
+    minute++;
+  }
+  second = int(scene.pathPlan.standstillElapsedTime) - (minute * 60);
 
   if (scene.standStill) {
-    if (scene.pathPlan.standstillElapsedTime % 60 == 0) {
-      minute += 1;
-    }
-    second = scene.pathPlan.standstillElapsedTime - (minute * 60);
     nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
     nvgFontSize(s->vg, 125);
     nvgFillColor(s->vg, COLOR_ORANGE_ALPHA(230));
