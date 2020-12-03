@@ -14,11 +14,11 @@ STOPPING_EGO_SPEED = 0.5
 MIN_CAN_SPEED = 0.3  # TODO: parametrize this in car interface
 STOPPING_TARGET_SPEED = MIN_CAN_SPEED + 0.01
 STARTING_TARGET_SPEED = 0.05
-BRAKE_THRESHOLD_TO_PID = 0.5
+BRAKE_THRESHOLD_TO_PID = 0.2
 
-STOPPING_BRAKE_RATE = 0.5  # brake_travel/s while trying to stop
-STARTING_BRAKE_RATE = 7  # brake_travel/s while releasing on restart
-BRAKE_STOPPING_TARGET = 0.5  # apply at least this amount of brake to maintain the vehicle stationary
+STOPPING_BRAKE_RATE = 0.2  # brake_travel/s while trying to stop
+STARTING_BRAKE_RATE = 0.8  # brake_travel/s while releasing on restart
+BRAKE_STOPPING_TARGET = 0.7  # apply at least this amount of brake to maintain the vehicle stationary
 
 RATE = 100.0
 
@@ -26,7 +26,7 @@ RATE = 100.0
 def long_control_state_trans(active, long_control_state, v_ego, v_target, v_pid,
                              output_gb, brake_pressed, cruise_standstill, stop, gas_pressed):
   """Update longitudinal control state machine"""
-  stopping_condition = stop or (v_ego < 1.3 and cruise_standstill) or \
+  stopping_condition = stop or (v_ego < 2.0 and cruise_standstill) or \
                        (v_ego < STOPPING_EGO_SPEED and \
                         ((v_pid < STOPPING_TARGET_SPEED and v_target < STOPPING_TARGET_SPEED) or
                         brake_pressed))
@@ -95,11 +95,11 @@ class LongControl():
       if gas_button_status == 0: # NORMAL
         dynamic = True
         x = [0.0, 1.4082, 2.8031, 4.2266, 5.3827, 6.1656, 7.2478, 8.2831, 10.2447, 12.964, 15.423, 18.119, 20.117, 24.4661, 29.0581, 32.7101, 35.7633]
-        y = [1.2, 1.204, 1.215, 1.242, 1.265, 1.286, 1.329, 1.354, 1.372, 1.38, 1.389, 1.321, 1.332, 1.380, 1.45, 1.521, 1.6]
+        y = [1.3, 1.304, 1.315, 1.342, 1.365, 1.386, 1.429, 1.454, 1.472, 1.48, 1.489, 1.421, 1.432, 1.480, 1.55, 1.621, 1.7]
       elif gas_button_status == 1: # SPORT
-        y = [1.4, 1.85, 1.89]
+        y = [1.5, 1.85, 1.89]
       elif gas_button_status == 2: # ECO
-        y = [1.15, 1.1, 1.15]
+        y = [1.25, 1.2, 1.25]
 
     if not dynamic:
       x = [0., 9., 55.]  # default BP values
@@ -213,7 +213,7 @@ class LongControl():
     elif self.long_control_state == LongCtrlState.starting:
       factor = 1
       if hasLead:
-        factor = interp(dRel,[0.0,2.0,4.0,6.0], [0.0,0.5,1.0,2.0])
+        factor = interp(dRel,[0.0,2.0,4.0,6.0], [0.0,0.5,4.0,8.0])
       if output_gb < -0.2:
         output_gb += STARTING_BRAKE_RATE / RATE * factor
       self.v_pid = CS.vEgo
