@@ -168,7 +168,7 @@ env = Environment(
     "#selfdrive/ui",
     "#cereal/messaging",
     "#cereal/messaging_arne",
-    #"#selfdrive/trafficd",
+    "#selfdrive/trafficd",
     "#cereal",
     "#opendbc/can",
   ],
@@ -322,7 +322,7 @@ if arch != "Darwin":
   SConscript(['selfdrive/logcatd/SConscript'])
   SConscript(['selfdrive/sensord/SConscript'])
   SConscript(['selfdrive/clocksd/SConscript'])
-  #SConscript(['selfdrive/trafficd/SConscript'])
+  SConscript(['selfdrive/trafficd/SConscript'])
 
 # TODO: finish cereal, dbcbuilder, MPC
 else:
