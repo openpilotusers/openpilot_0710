@@ -554,19 +554,19 @@ static void ui_draw_debug(UIState *s)
     } else if (s->lateral_control == 2) {
       ui_print(s, ui_viz_rx, ui_viz_ry+250, "LC:LQR");
     }
-    if (scene.long_plan_source == 0) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:none");
-    } else if (scene.long_plan_source == 1) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:cruise");
-    } else if (scene.long_plan_source == 2) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:mpc1");
-    } else if (scene.long_plan_source == 3) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:mpc2");
-    } else if (scene.long_plan_source == 4) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:mpc3");
-    } else if (scene.long_plan_source == 5) {
-      ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:model");
-    }
+    //if (scene.long_plan_source == 0) {
+    //  ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:none");
+    //} else if (scene.long_plan_source == 1) {
+    //  ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:cruise");
+    //} else if (scene.long_plan_source == 2) {
+    //  ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:mpc1");
+    //} else if (scene.long_plan_source == 3) {
+    //  ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:mpc2");
+    //} else if (scene.long_plan_source == 4) {
+    //  ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:mpc3");
+    //} else if (scene.long_plan_source == 5) {
+    //  ui_print(s, ui_viz_rx, ui_viz_ry+600, "LP:model");
+    //}
 
     nvgFontSize(s->vg, 45);
     nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
