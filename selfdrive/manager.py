@@ -482,6 +482,17 @@ def manager_thread():
 
   params = Params()
 
+  EnableLogger = int(params.get('OpkrEnableLogger'))     
+
+  if not EnableLogger:
+    car_started_processes.remove( 'loggerd' )
+    persistent_processes.remove( 'logmessaged' )
+    persistent_processes.remove( 'uploader' )
+    persistent_processes.remove( 'logcatd' )
+    persistent_processes.remove( 'updated' )
+    persistent_processes.remove( 'deleter' )
+    persistent_processes.remove( 'tombstoned' )
+
   # start daemon processes
   #for p in daemon_processes:
   #  start_daemon_process(p)
