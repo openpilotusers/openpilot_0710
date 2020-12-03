@@ -530,9 +530,9 @@ static void ui_draw_standstill(UIState *s) {
 
   if (scene.pathPlan.standstillElapsedTime > 0) {
     if (scene.pathPlan.standstillElapsedTime % 60 == 0) {
-      minute += 1
+      minute += 1;
     }
-    second = scene.pathPlan.standstillElapsedTime - (minute * 60)
+    second = scene.pathPlan.standstillElapsedTime - (minute * 60);
   }
   if (scene.pathPlan.standstillElapsedTime > 0) {
     nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
