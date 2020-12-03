@@ -341,6 +341,7 @@ void update_sockets(UIState *s) {
     scene.pathPlan.angleOffset = data.getAngleOffset();
     scene.pathPlan.steerActuatorDelay = data.getSteerActuatorDelay();
     scene.pathPlan.steerRateCost = data.getSteerRateCost();
+    scene.pathPlan.standstillElapsedTime = data.getStandstillElapsedTime();
 
     auto l_list = data.getLPoly();
     auto r_list = data.getRPoly();

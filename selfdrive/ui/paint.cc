@@ -519,6 +519,30 @@ static void ui_draw_tpms(UIState *s) {
   }
 }
 
+static void ui_draw_standstill(UIState *s) {
+  UIScene &scene = s->scene;
+
+  int viz_standstill_x = s->scene.viz_rect.x + s->scene.viz_rect.w - 510;
+  int viz_standstill_y = s->scene.viz_rect.y + (bdr_s*1.5) + 160 + 160;
+  
+  static int minute = 0;
+  static int second = 0;
+
+  if (scene.pathPlan.standstillElapsedTime > 0) {
+    if (scene.pathPlan.standstillElapsedTime % 60 == 0) {
+      minute += 1
+    }
+    second = scene.pathPlan.standstillElapsedTime - (minute * 60)
+  }
+  if (scene.pathPlan.standstillElapsedTime > 0) {
+    nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
+    nvgFontSize(s->vg, 100);
+    nvgFillColor(s->vg, COLOR_WHITE_ALPHA(150));
+    ui_print(s, viz_standstill_x, viz_standstill_y, "잠시멈춤!");
+    ui_print(s, viz_standstill_x, viz_standstill_y+100, "%01d:%02d", minute, second);
+  }
+}
+
 static void ui_draw_debug(UIState *s) 
 {
   UIScene &scene = s->scene;
@@ -1253,6 +1277,7 @@ static void ui_draw_vision_header(UIState *s) {
   ui_draw_vision_event(s);
   bb_ui_draw_UI(s);
   ui_draw_tpms(s);
+  ui_draw_standstill(s);
 }
 
 static void ui_draw_vision_car(UIState *s) {

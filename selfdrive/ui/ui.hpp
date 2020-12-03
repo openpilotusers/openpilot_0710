@@ -208,6 +208,7 @@ typedef struct UIScene {
     float steerRatio;
     float steerActuatorDelay;
     float steerRateCost;
+    int standstillElapsedTime;
 
     float cProb;
     float lProb;

@@ -255,7 +255,7 @@ class CarInterface(CarInterfaceBase):
     if self.CC.emergency_manual_timer:
       events.add(EventName.emgButtonManual)
     if self.CC.acc_standstill_timer >= 200:
-      events.add(EventName.standStill)
+      #events.add(EventName.standStill)
       self.CP.standStill = True
     else:
       self.CP.standStill = False
