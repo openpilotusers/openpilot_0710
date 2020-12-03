@@ -197,7 +197,7 @@ def main(filename = DEFAULT_OUTPUT_FILENAME):
   countries.append(KR)
 
   """ Default rules """
-  KR.add_rule({"highway": "motorway"}, "100")
+  KR.add_rule({"highway": "motorway"}, "110")
   KR.add_rule({"highway": "trunk"}, "80")
   KR.add_rule({"highway": "primary"}, "80")
   KR.add_rule({"highway": "secondary"}, "50")
