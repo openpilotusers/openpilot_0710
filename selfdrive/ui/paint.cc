@@ -523,7 +523,7 @@ static void ui_draw_standstill(UIState *s) {
   UIScene &scene = s->scene;
 
   int viz_standstill_x = s->scene.viz_rect.x + s->scene.viz_rect.w - 510;
-  int viz_standstill_y = s->scene.viz_rect.y + (bdr_s*1.5) + 160 + 160;
+  int viz_standstill_y = s->scene.viz_rect.y + (bdr_s*1.5) + 160 + 260;
   
   static int minute = 0;
   static int second = 0;
@@ -536,9 +536,10 @@ static void ui_draw_standstill(UIState *s) {
   }
   if (scene.pathPlan.standstillElapsedTime > 0) {
     nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
-    nvgFontSize(s->vg, 100);
-    nvgFillColor(s->vg, COLOR_WHITE_ALPHA(150));
+    nvgFontSize(s->vg, 125);
+    nvgFillColor(s->vg, COLOR_ORANGE_ALPHA(200));
     ui_print(s, viz_standstill_x, viz_standstill_y, "잠시멈춤!");
+    nvgFillColor(s->vg, COLOR_WHITE_ALPHA(200));
     ui_print(s, viz_standstill_x, viz_standstill_y+100, "%01d:%02d", minute, second);
   }
 }
