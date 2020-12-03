@@ -292,7 +292,7 @@ class CarController():
 
       can_sends.append(create_clu11(self.packer, 1, CS.clu11, Buttons.NONE, enabled_speed, self.clu11_cnt))
 
-    str_log1 = '토크={:03.0f}  프레임률={:03.0f} ST={:03.0f}/{:01.0f}/{:01.0f}  CG={:01.0f}'.format(abs(new_steer), self.timer1.sampleTime(), self.steerMax, self.steerDeltaUp, self.steerDeltaDown, CS.out.cruiseGapSet)
+    str_log1 = 'TQ={:03.0f}  FR={:03.0f} ST={:03.0f}/{:01.0f}/{:01.0f}  CG={:01.0f}'.format(abs(new_steer), self.timer1.sampleTime(), self.steerMax, self.steerDeltaUp, self.steerDeltaDown, CS.out.cruiseGapSet)
     trace1.printf1('{}  {}'.format(str_log1, self.str_log2))
 
     if pcm_cancel_cmd and CS.scc12["ACCMode"] != 0 and not CS.out.standstill:
