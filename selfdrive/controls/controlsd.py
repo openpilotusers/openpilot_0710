@@ -455,10 +455,6 @@ class Controls:
 
   def publish_logs(self, CS, start_time, actuators, v_acc, a_acc, lac_log, CS_arne182):
     """Send actuators and hud commands to the car, send controlsstate and MPC logging"""
-
-    self.log_alertTextMsg1 = trace1.global_alertTextMsg1
-    self.log_alertTextMsg2 = trace1.global_alertTextMsg2
-
     CC = car.CarControl.new_message()
     CC.enabled = self.enabled
     CC.actuators = actuators
@@ -542,6 +538,12 @@ class Controls:
           self.AM.add_custom(self.sm.frame, 'trafficDead', ET.WARNING, self.enabled)
     self.AM.process_alerts(self.sm.frame, clear_event)
     CC.hudControl.visualAlert = self.AM.visual_alert
+
+
+    self.log_alertTextMsg1 = trace1.global_alertTextMsg1
+    self.log_alertTextMsg2 = trace1.global_alertTextMsg2
+    log_alertTextMsg2 += '  PF={}'.format(df_out.user_profile_text)
+
 
     if not self.read_only:
       # send car controls over can
