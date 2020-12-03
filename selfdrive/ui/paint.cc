@@ -522,7 +522,7 @@ static void ui_draw_tpms(UIState *s) {
 static void ui_draw_standstill(UIState *s) {
   UIScene &scene = s->scene;
 
-  int viz_standstill_x = s->scene.viz_rect.x + s->scene.viz_rect.w - 510;
+  int viz_standstill_x = s->scene.viz_rect.x + s->scene.viz_rect.w - 560;
   int viz_standstill_y = s->scene.viz_rect.y + (bdr_s*1.5) + 160 + 260;
   
   static int minute = 0;
