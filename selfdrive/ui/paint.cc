@@ -528,7 +528,7 @@ static void ui_draw_standstill(UIState *s) {
   int minute = 0;
   int second = 0;
 
-  minute = int(scene.pathPlan.standstillElapsedTime / 60)
+  minute = int(scene.pathPlan.standstillElapsedTime / 60);
   second = int(scene.pathPlan.standstillElapsedTime) - (minute * 60);
 
   if (scene.standStill) {
