@@ -525,7 +525,7 @@ static void ui_draw_standstill(UIState *s) {
   int viz_standstill_x = s->scene.viz_rect.x + s->scene.viz_rect.w - 560;
   int viz_standstill_y = s->scene.viz_rect.y + (bdr_s*1.5) + 160 + 300;
   
-  static int minute = 0;
+  int minute = 0;
   int second = 0;
 
   if ((int(scene.pathPlan.standstillElapsedTime) % 60) == 0) {
