@@ -63,7 +63,7 @@ class LongControl():
     self.long_control_state = LongCtrlState.off  # initialized to off
     kdBP = [0., 33, 55., 78]
     kdBP = [i * CV.MPH_TO_MS for i in kdBP]
-    kdV = [0.05, 0.4, 0.8, 1.2]
+    kdV = [0.1, 0.5, 0.9, 1.3]
     self.pid = PIDController((CP.longitudinalTuning.kpBP, CP.longitudinalTuning.kpV),
                              (CP.longitudinalTuning.kiBP, CP.longitudinalTuning.kiV),
                              (kdBP, kdV),
