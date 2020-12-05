@@ -141,7 +141,7 @@ class LongControl():
     else:
       dRel = radarState.leadOne.dRel
     if hasLead:
-      stop = True if (dRel < 5.0 and radarState.leadOne.status) else False
+      stop = True if (dRel < 4.5 and radarState.leadOne.status) else False
     else:
       stop = False
     self.long_control_state = long_control_state_trans(active, self.long_control_state, CS.vEgo,
