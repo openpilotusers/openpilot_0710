@@ -204,9 +204,9 @@ void draw_date_time(UIState *s) {
 
   nvgBeginPath(s->vg);
     nvgRoundedRect(s->vg, rect_x, rect_y, rect_w, rect_h, 0);
-    nvgFillColor(s->vg, nvgRGBA(0, 0, 0, 100));
+    nvgFillColor(s->vg, nvgRGBA(0, 0, 0, 0));
     nvgFill(s->vg);
-    nvgStrokeColor(s->vg, nvgRGBA(255,255,255,80));
+    nvgStrokeColor(s->vg, nvgRGBA(255,255,255,0));
     nvgStrokeWidth(s->vg, 0);
     nvgStroke(s->vg);
 
