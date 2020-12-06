@@ -399,10 +399,17 @@ class CarController():
 
         self.fca11alivecnt = self.fca11maxcnt - self.fca11inc
 
-        can_sends.append(create_scc11(self.packer, enabled,
+        if CS.out.standStill and self.lead_visible and lead_dist < 7:
+          can_sends.append(create_scc11(self.packer, enabled,
                                       self.setspeed, self.lead_visible, lead_dist, lead_vrel, lead_yrel,
                                       self.gapsettingdance,
-                                      CS.out.standstill, CS.scc11,
+                                      1, CS.scc11,
+                                      self.usestockscc, CS.CP.radarOffCan, self.scc11cnt, self.sendaccmode))
+        else:
+          can_sends.append(create_scc11(self.packer, enabled,
+                                      self.setspeed, self.lead_visible, lead_dist, lead_vrel, lead_yrel,
+                                      self.gapsettingdance,
+                                      0, CS.scc11,
                                       self.usestockscc, CS.CP.radarOffCan, self.scc11cnt, self.sendaccmode))
 
         if CS.brake_check == 1 or CS.mainsw_check == 1:
