@@ -138,10 +138,15 @@ class LongControl():
     output_gb = self.last_output_gb
     if radarState is None:
       dRel = 200
+      vRel = 0
     else:
       dRel = radarState.leadOne.dRel
+      vRel = radarState.leadOne.vRel
     if hasLead:
-      stop = True if (dRel < 4.5 and radarState.leadOne.status) else False
+      if dRel < 4.0 and radarState.leadOne.status:
+        stop = True
+      else:
+        stop = False
     else:
       stop = False
     self.long_control_state = long_control_state_trans(active, self.long_control_state, CS.vEgo,
@@ -159,6 +164,12 @@ class LongControl():
     # tracking objects and driving
     elif self.long_control_state == LongCtrlState.pid:
       self.v_pid = v_target
+      dfactor = 0
+      ddiffer = 0
+      if hasLead and radarState.leadOne.status and 8 < dRel < 20 and vRel < -3 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+7):
+        ddiffer = int(CS.vEgo * CV.MS_TO_KPH) - int(dRel)
+        dfactor = interp(ddiffer,[10.0, 15.0, 20.0], [2.0, 1.0, 0.0])
+        self.v_pid = v_target - dfactor
       self.pid.pos_limit = gas_max
       self.pid.neg_limit = - brake_max
 
@@ -191,7 +202,6 @@ class LongControl():
         self.pid._k_i = (CP.longitudinalTuning.kiBP, [x * 1 for x in CP.longitudinalTuning.kiV])
         self.pid.k_f=1.0
 
-
       output_gb = self.pid.update(self.v_pid, v_ego_pid, speed=v_ego_pid, deadzone=deadzone, feedforward=a_target, freeze_integrator=prevent_overshoot)
 
       if prevent_overshoot:
@@ -202,7 +212,7 @@ class LongControl():
       # Keep applying brakes until the car is stopped
       factor = 1
       if hasLead:
-        factor = interp(dRel,[2.0,3.0,4.0,5.0,6.0,7.0,8.0], [3.0,2.0,1.5,1.25,0.6,0.29,0.0])
+        factor = interp(dRel,[2.0,3.0,4.0,5.0,6.0,7.0,8.0], [3,2,1.5,1.0,0.6,0.29,0.0])
       if not CS.standstill or output_gb > -BRAKE_STOPPING_TARGET:
         output_gb -= STOPPING_BRAKE_RATE / RATE * factor
       output_gb = clip(output_gb, -brake_max, gas_max)
