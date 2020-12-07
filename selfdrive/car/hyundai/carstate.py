@@ -162,10 +162,10 @@ class CarState(CarStateBase):
     else:
       ret.cruiseState.speed = 0
 
-    if cp_scc.vl["SCC11"]["MainMode_ACC"] != 0:
+    if self.cruise_main_button != 0:
       self.mainsw_check = 1
     
-    print('mainsw={}  check={}'.format(cp_scc.vl["SCC11"]["MainMode_ACC"], self.mainsw_check))
+    print('mainsw={}  check={}'.format(self.cruise_main_button, self.mainsw_check))
 
     # TODO: Find brake pressure
     ret.brake = 0
