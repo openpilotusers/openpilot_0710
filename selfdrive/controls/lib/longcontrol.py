@@ -74,7 +74,6 @@ class LongControl():
     self.lastdecelForTurn = False
     #self.had_lead = False
     self.last_output_gb = 0.0
-    self.pre_v_target = False
 
   def reset(self, v_pid):
     """Reset PID controller and change setpoint"""
@@ -166,7 +165,6 @@ class LongControl():
     
     if hasLead and radarState.leadOne.status and 5 < dRel < 23 and vRel < -3 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+7) and output_gb < -0.5:
       self.close_distance_control(CP)
-      self.pre_v_target = True
     #if hasLead and radarState.leadOne.status and 4 < dRel < 17 and vRel > 3 and (CS.vEgo * CV.MS_TO_KPH) < (dRel+5) and output_gb > 0:
     #  self.close_distance_control(CP)
 
@@ -183,11 +181,7 @@ class LongControl():
 
     # tracking objects and driving
     elif self.long_control_state == LongCtrlState.pid:
-      if self.pre_v_target == True:
-        self.v_pid = v_target - 1.5
-      else:
-        self.v_pid = v_target
-        self.pre_v_target = False
+      self.v_pid = v_target
       self.pid.pos_limit = gas_max
       self.pid.neg_limit = - brake_max
 
