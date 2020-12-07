@@ -108,7 +108,7 @@ def create_scc11(packer, enabled, set_speed, lead_visible, lead_dist, lead_vrel,
     if enabled:
       values["VSetDis"] = set_speed
     if standstill:
-      values["SCCInfoDisplay"] = 4
+      values["SCCInfoDisplay"] = 0
     else:
       values["SCCInfoDisplay"] = 0
     values["DriverAlertDisplay"] = 0
