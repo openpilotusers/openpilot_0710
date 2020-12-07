@@ -155,15 +155,14 @@ class LongControl():
 
 
     v_ego_pid = max(CS.vEgo, MIN_CAN_SPEED)  # Without this we get jumps, CAN bus reports 0 when speed < 0.3
-
+    dfactor = 0
+    ddiffer = 0
     if self.long_control_state == LongCtrlState.off or (CS.brakePressed or CS.gasPressed and not travis):
       self.v_pid = v_ego_pid
       self.pid.reset()
       output_gb = 0.
 
     # tracking objects and driving
-    dfactor = 0
-    ddiffer = 0
     elif self.long_control_state == LongCtrlState.pid:
       self.v_pid = v_target
       if hasLead and radarState.leadOne.status and 8 < dRel < 20 and vRel < -3 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+7) and output_gb < -0.5:
