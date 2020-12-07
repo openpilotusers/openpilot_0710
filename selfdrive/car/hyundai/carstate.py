@@ -164,8 +164,6 @@ class CarState(CarStateBase):
 
     if self.cruise_main_button != 0:
       self.mainsw_check = 1
-    
-    print('mainsw={}  check={}'.format(self.cruise_main_button, self.mainsw_check))
 
     # TODO: Find brake pressure
     ret.brake = 0
