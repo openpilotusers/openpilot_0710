@@ -164,6 +164,8 @@ class CarState(CarStateBase):
 
     if cp_scc.vl["SCC11"]["MainMode_ACC"] != 0:
       self.mainsw_check = 1
+    
+    print('mainsw={}  check={}'.format(cp_scc.vl["SCC11"]["MainMode_ACC"], self.mainsw_check))
 
     # TODO: Find brake pressure
     ret.brake = 0
