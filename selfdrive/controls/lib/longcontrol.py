@@ -18,7 +18,7 @@ BRAKE_THRESHOLD_TO_PID = 0.2
 
 STOPPING_BRAKE_RATE = 0.2  # brake_travel/s while trying to stop
 STARTING_BRAKE_RATE = 0.8  # brake_travel/s while releasing on restart
-BRAKE_STOPPING_TARGET = 0.5  # apply at least this amount of brake to maintain the vehicle stationary
+BRAKE_STOPPING_TARGET = 0.7  # apply at least this amount of brake to maintain the vehicle stationary
 
 RATE = 100.0
 
@@ -26,7 +26,7 @@ RATE = 100.0
 def long_control_state_trans(active, long_control_state, v_ego, v_target, v_pid,
                              output_gb, brake_pressed, cruise_standstill, stop, gas_pressed):
   """Update longitudinal control state machine"""
-  stopping_condition = stop or (v_ego < 2.0 and cruise_standstill) or \
+  stopping_condition = stop or (v_ego < 1.3 and cruise_standstill) or \
                        (v_ego < STOPPING_EGO_SPEED and \
                         ((v_pid < STOPPING_TARGET_SPEED and v_target < STOPPING_TARGET_SPEED) or
                         brake_pressed))
@@ -79,6 +79,19 @@ class LongControl():
     """Reset PID controller and change setpoint"""
     self.pid.reset()
     self.v_pid = v_pid
+
+  def close_distance_brake_control(self, CP):
+    kdBP = [0., 3., 6., 9., 12., 15.]
+    kdV = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    kdBP = [0., 3., 6., 9., 12., 15.]
+    kpV = [0.6, 0.8, 1.0, 0.9, 0.8, 0.7]
+    kiBP = [0., 3., 6., 9., 12., 15.]
+    kiV = [0.3, 0.35, 0.4, 0.35, 0.2, 0.1]
+    self.pid = PIDController((kpBP, kpV),
+                             (kiBP, kiV),
+                             (kdBP, kdV),
+                             rate=RATE,
+                             sat_limit=0.8)
 
   def dynamic_gas(self, v_ego, gas_interceptor, gas_button_status):
     dynamic = False
@@ -149,14 +162,16 @@ class LongControl():
         stop = False
     else:
       stop = False
+    
+    if hasLead and radarState.leadOne.status and 7 < dRel < 23 and vRel < -4 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+10) and output_gb < -0.5:
+      self.close_distance_brake_control(CP)
+
     self.long_control_state = long_control_state_trans(active, self.long_control_state, CS.vEgo,
                                                        v_target_future, self.v_pid, output_gb,
                                                        CS.brakePressed, CS.cruiseState.standstill, stop, CS.gasPressed)
 
 
     v_ego_pid = max(CS.vEgo, MIN_CAN_SPEED)  # Without this we get jumps, CAN bus reports 0 when speed < 0.3
-    dfactor = 0
-    ddiffer = 0
     if self.long_control_state == LongCtrlState.off or (CS.brakePressed or CS.gasPressed and not travis):
       self.v_pid = v_ego_pid
       self.pid.reset()
@@ -165,10 +180,6 @@ class LongControl():
     # tracking objects and driving
     elif self.long_control_state == LongCtrlState.pid:
       self.v_pid = v_target
-      if hasLead and radarState.leadOne.status and 8 < dRel < 20 and vRel < -3 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+7) and output_gb < -0.5:
-        ddiffer = int(CS.vEgo * CV.MS_TO_KPH) - int(dRel)
-        dfactor = interp(ddiffer,[10.0, 15.0, 20.0], [2.0, 1.0, 0.0])
-        self.v_pid = v_target - dfactor
       self.pid.pos_limit = gas_max
       self.pid.neg_limit = - brake_max
 
@@ -212,9 +223,7 @@ class LongControl():
       factor = 1
       if hasLead:
         factor = interp(dRel,[2.0,3.0,4.0,5.0,6.0,7.0,8.0], [3,2,1,0.7,0.5,0.3,0.0])
-      if 4.0 < dRel < 5.5:
-        output_gb -= STOPPING_BRAKE_RATE / RATE * factor
-      elif not CS.standstill or output_gb > -BRAKE_STOPPING_TARGET:
+      if not CS.standstill or output_gb > -BRAKE_STOPPING_TARGET:
         output_gb -= STOPPING_BRAKE_RATE / RATE * factor
       output_gb = clip(output_gb, -brake_max, gas_max)
 
@@ -224,7 +233,7 @@ class LongControl():
     elif self.long_control_state == LongCtrlState.starting:
       factor = 1
       if hasLead:
-        factor = interp(dRel,[0.0,2.0,3.0,4.0,6.0], [0.0,0.5,5.0,7.0,9.0])
+        factor = interp(dRel,[0.0,2.0,3.0,4.0,6.0], [0.0,0.5,6.0,7.5,9.0])
       if output_gb < -0.2:
         output_gb += STARTING_BRAKE_RATE / RATE * factor
       self.v_pid = CS.vEgo
@@ -246,7 +255,7 @@ class LongControl():
     else:
       self.long_stat = "---"
 
-    str_log3 = 'LS={:s}  GS={:01.2f}/{:01.2f}  BK={:01.2f}/{:01.2f}  GB={:+04.2f}  TG=V:{:05.2f}/F:{:05.2f}/A:{:+04.2f}  D={:.1f}  GS={}'.format(self.long_stat, final_gas, gas_max, abs(final_brake), abs(brake_max), output_gb, v_target, abs(v_target_future), a_target, dfactor, CS.gasPressed)
+    str_log3 = 'LS={:s}  GS={:01.2f}/{:01.2f}  BK={:01.2f}/{:01.2f}  GB={:+04.2f}  TG=V:{:05.2f}/F:{:05.2f}/A:{:+04.2f}  GS={}'.format(self.long_stat, final_gas, gas_max, abs(final_brake), abs(brake_max), output_gb, v_target, abs(v_target_future), a_target, CS.gasPressed)
     trace1.printf2('{}'.format(str_log3))
 
     return final_gas, final_brake
