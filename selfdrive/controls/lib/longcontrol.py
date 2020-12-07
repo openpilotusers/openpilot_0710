@@ -157,18 +157,18 @@ class LongControl():
       dRel = radarState.leadOne.dRel
       vRel = radarState.leadOne.vRel
     if hasLead:
-      if dRel < 4.5 and radarState.leadOne.status:
+      if dRel < 4.0 and radarState.leadOne.status:
         stop = True
       else:
         stop = False
     else:
       stop = False
     
-    if hasLead and radarState.leadOne.status and 7 < dRel < 23 and vRel < -3 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+7) and output_gb < -0.5:
+    if hasLead and radarState.leadOne.status and 5 < dRel < 23 and vRel < -3 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+7) and output_gb < -0.5:
       self.close_distance_control(CP)
       self.pre_v_target = True
-    if hasLead and radarState.leadOne.status and 4 < dRel < 17 and vRel > 3 and (CS.vEgo * CV.MS_TO_KPH) < (dRel+5) and output_gb > 0:
-      self.close_distance_control(CP)
+    #if hasLead and radarState.leadOne.status and 4 < dRel < 17 and vRel > 3 and (CS.vEgo * CV.MS_TO_KPH) < (dRel+5) and output_gb > 0:
+    #  self.close_distance_control(CP)
 
     self.long_control_state = long_control_state_trans(active, self.long_control_state, CS.vEgo,
                                                        v_target_future, self.v_pid, output_gb,
@@ -184,7 +184,7 @@ class LongControl():
     # tracking objects and driving
     elif self.long_control_state == LongCtrlState.pid:
       if self.pre_v_target == True:
-        self.v_pid = v_target - 1
+        self.v_pid = v_target - 1.5
       else:
         self.v_pid = v_target
         self.pre_v_target = False
@@ -230,7 +230,7 @@ class LongControl():
       # Keep applying brakes until the car is stopped
       factor = 1
       if hasLead:
-        factor = interp(dRel,[2.0,3.0,4.0,4.5,5.0,6.0,7.0,8.0], [5,3,1.2,1.0,0.7,0.5,0.3,0.0])
+        factor = interp(dRel,[2.0,3.0,4.0,5.0,6.0,7.0,8.0], [5,3,1.0,0.7,0.5,0.3,0.0])
       if not CS.standstill or output_gb > -BRAKE_STOPPING_TARGET:
         output_gb -= STOPPING_BRAKE_RATE / RATE * factor
       output_gb = clip(output_gb, -brake_max, gas_max)
