@@ -156,7 +156,7 @@ class CarState(CarStateBase):
     if ret.cruiseState.enabled and (self.brake_check == 0 or self.mainsw_check == 0):
       speed_conv = CV.MPH_TO_MS if self.is_set_speed_in_mph else CV.KPH_TO_MS
       if self.CP.radarOffCan:
-        ret.cruiseState.speed = cp.vl["LVR12"]["CF_Lvr_CruiseSet"] * speed_conv
+        ret.cruiseState.speed = (cp.vl["LVR12"]["CF_Lvr_CruiseSet"] * speed_conv) + 1
       else:
         ret.cruiseState.speed = cp_scc.vl["SCC11"]['VSetDis'] * speed_conv
     else:
