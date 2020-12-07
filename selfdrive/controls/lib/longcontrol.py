@@ -81,12 +81,12 @@ class LongControl():
     self.v_pid = v_pid
 
   def close_distance_brake_control(self, CP):
-    kdBP = [0., 3., 6., 9., 12., 15.]
-    kdV = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-    kpBP = [0., 3., 6., 9., 12., 15.]
-    kpV = [0.6, 0.8, 1.0, 0.9, 0.8, 0.7]
-    kiBP = [0., 3., 6., 9., 12., 15.]
-    kiV = [0.3, 0.35, 0.4, 0.35, 0.2, 0.1]
+    kdBP = [0.]
+    kdV = [1.0]
+    kpBP = [0.]
+    kpV = [2.0]
+    kiBP = [0.]
+    kiV = [0.5]
     self.pid = PIDController((kpBP, kpV),
                              (kiBP, kiV),
                              (kdBP, kdV),
