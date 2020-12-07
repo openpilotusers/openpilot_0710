@@ -80,19 +80,6 @@ class LongControl():
     self.pid.reset()
     self.v_pid = v_pid
 
-  def close_distance_control(self, CP):
-    kdBP = [0.]
-    kdV = [1.0]
-    kpBP = [0.]
-    kpV = [2.5]
-    kiBP = [0.]
-    kiV = [0.75]
-    self.pid = PIDController((kpBP, kpV),
-                             (kiBP, kiV),
-                             (kdBP, kdV),
-                             rate=RATE,
-                             sat_limit=0.8)
-
   def dynamic_gas(self, v_ego, gas_interceptor, gas_button_status):
     dynamic = False
     if gas_interceptor: # gas_interceptor is not used for hkg
@@ -162,16 +149,10 @@ class LongControl():
         stop = False
     else:
       stop = False
-    
-    if hasLead and radarState.leadOne.status and 5 < dRel < 23 and vRel < -3 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+7) and output_gb < -0.5:
-      self.close_distance_control(CP)
-    #if hasLead and radarState.leadOne.status and 4 < dRel < 17 and vRel > 3 and (CS.vEgo * CV.MS_TO_KPH) < (dRel+5) and output_gb > 0:
-    #  self.close_distance_control(CP)
 
     self.long_control_state = long_control_state_trans(active, self.long_control_state, CS.vEgo,
                                                        v_target_future, self.v_pid, output_gb,
                                                        CS.brakePressed, CS.cruiseState.standstill, stop, CS.gasPressed)
-
 
     v_ego_pid = max(CS.vEgo, MIN_CAN_SPEED)  # Without this we get jumps, CAN bus reports 0 when speed < 0.3
     if self.long_control_state == LongCtrlState.off or (CS.brakePressed or CS.gasPressed and not travis):
@@ -215,6 +196,10 @@ class LongControl():
         self.pid.k_f=1.0
 
       output_gb = self.pid.update(self.v_pid, v_ego_pid, speed=v_ego_pid, deadzone=deadzone, feedforward=a_target, freeze_integrator=prevent_overshoot)
+      
+      if hasLead and radarState.leadOne.status and 5 < dRel < 23 and vRel < -3 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+7) and output_gb < -0.5:
+        output_gb -= 0.5
+        output_gb = clip(output_gb, -brake_max, gas_max)
 
       if prevent_overshoot:
         output_gb = min(output_gb, 0.0)
