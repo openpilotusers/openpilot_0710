@@ -162,10 +162,10 @@ class LongControl():
       output_gb = 0.
 
     # tracking objects and driving
+    dfactor = 0
+    ddiffer = 0
     elif self.long_control_state == LongCtrlState.pid:
       self.v_pid = v_target
-      dfactor = 0
-      ddiffer = 0
       if hasLead and radarState.leadOne.status and 8 < dRel < 20 and vRel < -3 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+7) and output_gb < -0.5:
         ddiffer = int(CS.vEgo * CV.MS_TO_KPH) - int(dRel)
         dfactor = interp(ddiffer,[10.0, 15.0, 20.0], [2.0, 1.0, 0.0])
