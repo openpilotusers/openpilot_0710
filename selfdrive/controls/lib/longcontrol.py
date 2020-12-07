@@ -75,6 +75,7 @@ class LongControl():
     #self.had_lead = False
     self.last_output_gb = 0.0
     self.pre_v_target = False
+    self.count = 0
 
   def reset(self, v_pid):
     """Reset PID controller and change setpoint"""
@@ -184,8 +185,10 @@ class LongControl():
     # tracking objects and driving
     elif self.long_control_state == LongCtrlState.pid:
       if self.pre_v_target == True:
-        self.v_pid = v_target - 1.5
+        self.count += 0.05
+        self.v_pid = v_target - min(2, self.count)
       else:
+        self.count = 0
         self.v_pid = v_target
         self.pre_v_target = False
       self.pid.pos_limit = gas_max
@@ -263,7 +266,7 @@ class LongControl():
     else:
       self.long_stat = "---"
 
-    str_log3 = 'LS={:s}  GS={:01.2f}/{:01.2f}  BK={:01.2f}/{:01.2f}  GB={:+04.2f}  TG=V:{:05.2f}/F:{:05.2f}/A:{:+04.2f}  GS={}'.format(self.long_stat, final_gas, gas_max, abs(final_brake), abs(brake_max), output_gb, v_target, abs(v_target_future), a_target, CS.gasPressed)
+    str_log3 = 'LS={:s}  GS={:01.2f}/{:01.2f}  BK={:01.2f}/{:01.2f}  GB={:+04.2f}  TG=P:{:05.2f}/V:{:05.2f}/F:{:05.2f}/A:{:+04.2f}  GS={}'.format(self.long_stat, final_gas, gas_max, abs(final_brake), abs(brake_max), output_gb, self.v_pid, v_target, abs(v_target_future), a_target, CS.gasPressed)
     trace1.printf2('{}'.format(str_log3))
 
     return final_gas, final_brake
