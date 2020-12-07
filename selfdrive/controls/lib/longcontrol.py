@@ -80,13 +80,13 @@ class LongControl():
     self.pid.reset()
     self.v_pid = v_pid
 
-  def close_distance_brake_control(self, CP):
+  def close_distance_control(self, CP):
     kdBP = [0.]
     kdV = [1.0]
     kpBP = [0.]
-    kpV = [2.]
+    kpV = [2.5]
     kiBP = [0.]
-    kiV = [0.5]
+    kiV = [0.75]
     self.pid = PIDController((kpBP, kpV),
                              (kiBP, kiV),
                              (kdBP, kdV),
@@ -163,8 +163,10 @@ class LongControl():
     else:
       stop = False
     
-    if hasLead and radarState.leadOne.status and 7 < dRel < 23 and vRel < -4 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+10) and output_gb < -0.5:
-      self.close_distance_brake_control(CP)
+    if hasLead and radarState.leadOne.status and 7 < dRel < 23 and vRel < -3 and (CS.vEgo * CV.MS_TO_KPH) > (dRel+7) and output_gb < -0.5:
+      self.close_distance_control(CP)
+    if hasLead and radarState.leadOne.status and 4 < dRel < 17 and vRel > 3 and (CS.vEgo * CV.MS_TO_KPH) < (dRel+5) and output_gb > 0:
+      self.close_distance_control(CP)
 
     self.long_control_state = long_control_state_trans(active, self.long_control_state, CS.vEgo,
                                                        v_target_future, self.v_pid, output_gb,
@@ -222,7 +224,7 @@ class LongControl():
       # Keep applying brakes until the car is stopped
       factor = 1
       if hasLead:
-        factor = interp(dRel,[2.0,3.0,4.0,5.0,6.0,7.0,8.0], [3,2,1,0.7,0.5,0.3,0.0])
+        factor = interp(dRel,[2.0,3.0,4.0,5.0,6.0,7.0,8.0], [5,3,1,0.7,0.5,0.3,0.0])
       if not CS.standstill or output_gb > -BRAKE_STOPPING_TARGET:
         output_gb -= STOPPING_BRAKE_RATE / RATE * factor
       output_gb = clip(output_gb, -brake_max, gas_max)
