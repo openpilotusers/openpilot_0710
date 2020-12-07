@@ -75,7 +75,6 @@ class LongControl():
     #self.had_lead = False
     self.last_output_gb = 0.0
     self.pre_v_target = False
-    self.count = 0
 
   def reset(self, v_pid):
     """Reset PID controller and change setpoint"""
@@ -185,10 +184,8 @@ class LongControl():
     # tracking objects and driving
     elif self.long_control_state == LongCtrlState.pid:
       if self.pre_v_target == True:
-        self.count += 0.05
-        self.v_pid = v_target - min(2, self.count)
+        self.v_pid = v_target - 1.5
       else:
-        self.count = 0
         self.v_pid = v_target
         self.pre_v_target = False
       self.pid.pos_limit = gas_max
